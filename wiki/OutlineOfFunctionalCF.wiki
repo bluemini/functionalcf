@@ -1,0 +1,27 @@
+#summary A look at creating a functional syntax within CF
+
+= Introduction =
+
+The functional languages like Lisp and more recently Clojure (a form of Lisp for the JVM) bring enormous power to the table. Functions as first class objects allow for truly expressive code, however, CFML lags a little in its ability to create and return functions on the fly.
+
+= Details =
+
+FunctionalCF is a look at making a CFML based functional language, syntactically similar (as is reasonable) to Lisp/Clojure. A base run function $() replaces the simple bracket syntax (we have to have a function to run) and in the same vein you don't assign values only return functions.
+
+Since this is built on CFML, the basic functions in the underlying CFML are (or will be) all alised into the functional pattern. That means, for example, output is given as:
+
+{{{
+$(writeoutput, "hello ", "world");
+}}}
+
+Defining new functions simply uses the 'defn' function with place holders for values defined using '['] around names.
+
+To define a new function '*sayHi*' that takes a name parameter:
+{{{
+$(defn, "sayHi", "[name]", ["writeoutput", "Hi, ", "[name]"]);
+}}}
+there is no assignment, since like other functional languages all things are immutable.
+{{{
+$(sayHi, "Nick");
+>Hi, Nick
+}}}

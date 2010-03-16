@@ -3,20 +3,27 @@
 
 <cffunction name="$" access="public" output="true">
 	<cfset resp = "">
-	<cfsetting enablecfoutputonly="true">
 	
 	<cfif arrayLen(arguments) LT 1>
 		<cfoutput>FunctionalCF - The first argument on the Run function ($) must be a function.</cfoutput>
 	<cfelse>
 		<cfset fn = arguments[1]>
 		<cfset arrayDeleteAt(arguments, 1)>
-		--- callin fn ---<br>
+		--- calling fn ---<br>
 		<cfif isObject(fn)>
-			<cfset resp = fn.run(argumentCollection=arguments[1])>
+			<cfoutput>--- called by Object fn ---</cfoutput>
+			<cfset resp = fn.run(argumentCollection=arguments)>
 		<cfelseif isCustomFunction(fn)>
+			<cfoutput>--- called by Custom Function fn ---</cfoutput>
 			<cfset resp = fn(argumentCollection=arguments)>
 		<cfelseif isCustomFunction(variables[fn])>
+			<cfoutput>--- called by String var ---</cfoutput>
 			<cfset resp = variables[fn](arguments)>
+		<cfelseif isObject(variables[fn])>
+			<cfoutput>--- calling func.cfc by String var ---</cfoutput>
+			<cfset resp = variables[fn].run(arguments)>
+		<cfelse>
+			No function found to run<cfdump var="#variables#">
 		</cfif>
 		
 		<cfif structKeyExists(variables, "resp")><cfoutput>#resp#</cfoutput></cfif>

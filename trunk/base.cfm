@@ -5,26 +5,26 @@
 	<cfset resp = "">
 	<cfsetting enablecfoutputonly="true">
 	
-	<cfif arrayLen(arguments) LT 2>
-		<cfthrow message="funcex requires at least two parameters">
+	<cfif arrayLen(arguments) LT 1>
+		<cfoutput>FunctionalCF - The first argument on the Run function ($) must be a function.</cfoutput>
+	<cfelse>
+		<cfset fn = arguments[1]>
+		<cfset arrayDeleteAt(arguments, 1)>
+		--- callin fn ---<br>
+		<cfif isObject(fn)>
+			<cfset resp = fn.run(argumentCollection=arguments[1])>
+		<cfelseif isCustomFunction(fn)>
+			<cfset resp = fn(argumentCollection=arguments)>
+		<cfelseif isCustomFunction(variables[fn])>
+			<cfset resp = variables[fn](arguments)>
+		</cfif>
+		
+		<cfif structKeyExists(variables, "resp")><cfoutput>#resp#</cfoutput></cfif>
+		
+		--- $ arguments ---
+		<cfdump var="#arguments#">
+		--- end $ arguments ---<br>
 	</cfif>
-	<cfset fn = arguments[1]>
-	<cfset arrayDeleteAt(arguments, 1)>
-	--- callin fn ---<br>
-	<cfif isObject(fn)>
-		HERE
-		<cfset resp = fn.run(argumentCollection=arguments[1])>
-	<cfelseif isCustomFunction(fn)>
-		<cfset resp = fn(argumentCollection=arguments)>
-	<cfelseif isCustomFunction(variables[fn])>
-		<cfset resp = variables[fn](arguments)>
-	</cfif>
-	
-	<cfif structKeyExists(variables, "resp")><cfoutput>#resp#</cfoutput></cfif>
-	
-	--- $ arguments ---
-	<cfdump var="#arguments#">
-	--- end $ arguments ---<br>
 </cffunction>
 <cffunction name="C" access="public" output="true">
 	<cfif arrayLen(arguments) NEQ 1>
@@ -54,12 +54,14 @@
 </cffunction>
 
 
-<cffunction name="defn" output="false">
+<cffunction name="defn" output="true">
 	<cfdump var="#arguments#" label="DEF ARGS">
 	<cfscript>
 		var arrKeys = structKeyArray(arguments);
 		var arrKey = 0;
 		var attr = {};
+		var arityCount = 1;
+		attr.func = arrayNew(1);
 		attr.comment = "";
 		
 		if (arrayLen(arguments) LT 2) ;
@@ -67,26 +69,31 @@
 		// parse the arguments and set up the new function definition
 		for (i=1; i LTE arrayLen(arrKeys); i++) {
 			arrKey = arrKeys[i];
+			argName = arguments[arrKey];
 			// the first argument is always the name of the new function
 			if (i EQ 1) {
-				attr.name = arguments[arrKey];
+				attr.name = argName;
 				writeOutput("DEFN: function name: "&attr.name&"<br>");
-			}
-			
-			if (isArray(arguments[arrKey]) AND structKeyExists(attr, "args")) {
-				attr.func = arguments[arrKey];
-			} else if (left(arguments[arrKey],1) IS "[" AND right(arguments[arrKey],1) IS "]") {
-				attr.args = arguments[arrKey];
-			} else if (NOT structKeyExists(attr, "args")) {
-				attr.comment = arguments[arrKey]; // nice side effect is that the comment becomes function name when no comment is specified
+			} else if (i EQ 2 AND isSimpleValue(argName) AND 
+				(NOT left(argName,1) IS "[" OR NOT right(argName, 1) IS "]")) {
+				attr.comment = argName;
+				writeOutput("DEFN: function comment: " );
+			} else if (i GTE 2 AND i LTE 3 AND isSimpleValue(argName) AND 
+				left(argName,1) IS "[" AND right(argName, 1) IS "]") {
+				attr["argmap"] = argName;
+				writeOutput("DEFN: argument map defined: " );
+			} else if (i GT 1 AND isArray(argName)) {
+				attr.func[arityCount] = argName;
+				arityCount ++;
 			}
 		}
 	</cfscript>
+	<cfdump var="#attr#">
+
 	--- defn attributes ---
 	<cfset tempFunc = createObject("component", "func")>
 	<cfset tempFunc.init(attr, this)>
 	<cfset variables[attr.name] = tempFunc>
-	<cfdump var="#attr#">
 	--- end defn attributes ---<br>
 </cffunction>
 

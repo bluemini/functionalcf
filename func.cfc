@@ -29,6 +29,19 @@
 		--- running <cfoutput>#variables.attr.name#</cfoutput> ---<br>
 		<cfdump var="#arguments#" label="FUNC RUN">
 		<cfoutput>
+			
+		<!--- find the function definition associated with the number of args passed in --->
+		<cfset numArgs = arrayLen(arguments)>
+		<cfset funcDecl = 0>
+		<cfloop from="1" to="#arrayLen(variables.attr.func)#" index="iDecl">
+			<cfif isSimpleValue(variables.attr.func[iDecl][1]) AND listLen(variables.attr.func[iDecl][1]) EQ numArgs>
+				<cfset >
+				<cfset funcDecl = variables.attr.func[iDecl]>
+				<cfbreak>
+			<cfelseif isObject(variables.attr.func[iDecl][1])>
+				<cfset funcDecl = >
+			</cfif>
+		</cfloop>
 		
 		<!--- loop over each argument from the definition (variables.attr.args) and
 		and add to 

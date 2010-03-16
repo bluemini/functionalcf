@@ -20,11 +20,10 @@ for this try,
 	[println..]	an description of the function. To avoid it being evaluated, it is an implicit array
 --->
 <cfset $(defn, "hello", "Says hello", "[name]", [println, "I'd like to say hi to, ", "[name]"])>
-
 <cfset $(hello, "John")>
 
 
-<cfset $(defn, "double", "doubles whatever you give it", "[val]", ["+", "[val]", "[val]"])>
+<cfset $(defn, "double", "doubles whatever you give it", "[& val]", ["+", "[val]", "[val]"])>
 
 <cfoutput>
 	#$(double, 3)#

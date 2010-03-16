@@ -1,5 +1,10 @@
 <cfcomponent>
 	
+	<!---
+	func is an array of function definitions. If there are more than one, then
+	the first argument
+	--->
+	
 	<cfset variables.argArray = arrayNew(1)>
 	
 	<cffunction name="init">
@@ -34,21 +39,28 @@
 		<cfset numArgs = arrayLen(arguments)>
 		<cfset funcDecl = 0>
 		<cfloop from="1" to="#arrayLen(variables.attr.func)#" index="iDecl">
-			<cfif isSimpleValue(variables.attr.func[iDecl][1]) AND listLen(variables.attr.func[iDecl][1]) EQ numArgs>
-				<cfset >
+			<cfif isSimpleValue(variables.attr.func[iDecl][1]) AND listLen(stripDynArg(variables.attr.func[iDecl][1])) EQ numArgs>
+				<cfset funcDecl = variables.attr.func[iDecl][2]>
+				<cfbreak>
+			<cfelseif isObject(variables.attr.func[iDecl][1]) OR isCustomFunction(variables.attr.func[iDecl][1])>
 				<cfset funcDecl = variables.attr.func[iDecl]>
 				<cfbreak>
-			<cfelseif isObject(variables.attr.func[iDecl][1])>
-				<cfset funcDecl = >
 			</cfif>
 		</cfloop>
+		
+		<cfdump var="#variables.attr.func#" label="func func">
+		<!---
+		<cfif isSimpleValue(variables.attr.func[1][1])><cfoutput>#listLen(variables.attr.func[1][1])#, #numArgs#</cfoutput><cfelse>NOPE</cfif>
+		--->
+		
+		<cfif NOT isArray(funcDecl)>Ooops, no function definition found in <cfdump var="#variables.attr.func#"><cfabort></cfif>
 		
 		<!--- loop over each argument from the definition (variables.attr.args) and
 		and add to 
 		--->
 		
-		<cfloop from="2" to="#arrayLen(variables.attr.func)#" index="iValue">
-			<cfset argValue = variables.attr.func[iValue]>
+		<cfloop from="2" to="#arrayLen(funcDecl)#" index="iValue">
+			<cfset argValue = funcDecl[iValue]>
 			<cfif isDynArg(argValue)>
 				<!--- the argument needs to be dynamically evaluated --->
 				<cfif arrayLen(arguments) GTE dynCounter>
@@ -69,8 +81,8 @@
 				--- #UCASE(variables.attr.name)#: variable[#iAttr#] #argName#<br>
 		--->
 		
-		--- Calling our defined function ---<br>
-		<cfset variables.that.$(variables.that.println, argMatch)>
+		--- Calling our defined function ---<cfdump var="#funcDecl[1]#"><cfdump var="#argMatch#">
+		<cfset variables.that.$(funcDecl[1], argMatch)>
 		</cfoutput>
 	</cffunction>
 	
@@ -89,6 +101,14 @@
 		<cfargument name="toCheck">
 		<cfif left(arguments.toCheck,1) IS "[" AND right(arguments.toCheck,1) IS "]">
 			<cfreturn true>
+		</cfif>
+		<cfreturn false>
+	</cffunction>
+
+	<cffunction name="stripDynArg">
+		<cfargument name="toCheck">
+		<cfif isDynArg(toCheck)>
+			<cfreturn mid(toCheck, 1, len(toCheck)-2)>
 		</cfif>
 		<cfreturn false>
 	</cffunction>

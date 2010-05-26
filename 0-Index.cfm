@@ -7,7 +7,6 @@
 
 <body>
 <!--- <cfset $(defn, "hello", "Says hello to whomever you pass it..", "[name]", [println, "Hello, ", "name"])> --->
-
 <cfscript>
 	$(println, "hello, ", "bob");
 </cfscript>
@@ -21,6 +20,7 @@ for this try,
 --->
 <cfset $(defn, "hello", "Says hello", "[name]", [println, "I'd like to say hi to, ", "[name]"])>
 <cfset $(hello, "John")>
+<cfabort>
 
 
 <cfset $(defn, "double", "doubles whatever you give it", "[& val]", ["+", "[val]", "[val]"])>

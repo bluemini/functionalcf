@@ -48,7 +48,7 @@
 			</cfif>
 		</cfloop>
 		
-		<cfdump var="#variables.attr.func#" label="func func">
+		<cfdump var="#variables.attr.func#" label="FUNC function definition">
 		<!---
 		<cfif isSimpleValue(variables.attr.func[1][1])><cfoutput>#listLen(variables.attr.func[1][1])#, #numArgs#</cfoutput><cfelse>NOPE</cfif>
 		--->

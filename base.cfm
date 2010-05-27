@@ -1,36 +1,51 @@
 <cfset this.name = "funcex">
 <cfset this.sessionManagement = true>
+<cfparam name="url.debug" default="false">
+<cfset request.debug = url.debug>
 
 <cffunction name="$" access="public" output="true">
+	
+	<cfif url.debug>
+		<h3>$:</h3>
+		<cfdump var="#arguments#" label="$ arguments">
+	</cfif>
+	
 	<cfset resp = "">
 	
 	<cfif arrayLen(arguments) LT 1>
 		<cfoutput>FunctionalCF - The first argument on the Run function ($) must be a function.</cfoutput>
 	<cfelse>
-		<cfset fn = arguments[1]>
+		<cfif structKeyExists(arguments, "arg1")>
+			<cfset fn = arguments["arg1"]>
+		<cfelse>
+			<cfset fn = arguments[1]>
+		</cfif>
 		
 		<!--- copy the remaining arguments to a new struct --->
 		<cfset newArgs = structNew()>
 		<cfset newArgName = 1>
 		<cfset arrArgKeys = structKeyArray(arguments)>
 		<cfloop from="2" to="#arrayLen(arrArgKeys)#" index="argumentName">
-			<cfset newArgs["arg"&(argumentName-1)]=arguments[argumentName]>
+			<cfif structKeyExists(arguments, "arg#argumentName#")>
+				<cfset newArgs["arg"&(argumentName-1)] = arguments["arg#argumentName#"]>
+			<cfelse>
+				<cfset newArgs["arg"&(argumentName-1)] = arguments[argumentName]>
+			</cfif>
 		</cfloop>
-		<cfdump var="#newArgs#" label="$ newArgs">
+		<cfif url.debug><cfdump var="#newArgs#" label="$ newArgs"></cfif>
 		
-		--- calling fn ---<br>
 		<cfif isObject(fn)>
-			<cfoutput>--- called by Object fn ---<br></cfoutput>
+			<cfif url.debug><cfoutput>--- called by Object fn ---<br></cfoutput></cfif>
 			<cfset resp = fn.run(argumentCollection=newArgs)>
 		<cfelseif isCustomFunction(fn)>
-			<cfoutput>--- called by Custom Function fn ---<br></cfoutput>
+			<cfif url.debug><cfoutput>--- called by Custom Function fn ---<br></cfoutput></cfif>
 			<cfset resp = fn(argumentCollection=newArgs)>
 		<cfelseif isCustomFunction(variables[fn])>
-			<cfoutput>--- called by String var ---</cfoutput>
+			<cfif url.debug><cfoutput>--- called by String var ---</cfoutput></cfif>
 			<cfset tempFunc = variables[fn]>
 			<cfset resp = tempFunc(newArgs)>
 		<cfelseif isObject(variables[fn])>
-			<cfoutput>--- calling func.cfc by String var ---</cfoutput>
+			<cfif url.debug><cfoutput>--- calling func.cfc by String var ---</cfoutput></cfif>
 			<cfset resp = variables[fn].run(newArgs)>
 		<cfelse>
 			No function found to run<cfdump var="#variables#">
@@ -38,9 +53,9 @@
 		
 		<cfif structKeyExists(variables, "resp")><cfoutput>#resp#</cfoutput><br></cfif>
 		
-		--- $ arguments ---<br>
+		<cfif url.debug>--- $ arguments ---<br>
 		<cfdump var="#structKeyArray(arguments)#">
-		--- end $ arguments ---<br>
+		--- end $ arguments ---<br></cfif>
 	</cfif>
 </cffunction>
 
@@ -80,29 +95,33 @@
 	<cfset attr.func = arrayNew(1)>
 	<cfset attr.comment = "">
 	
-	<cfdump var="#arguments#" label="arguments">
-	<cfdump var="#arrKeys#" label="argument keys">
+	<cfif url.debug><h3>DEFN:</h3>
+	<cfdump var="#arguments#" label="arguments"></cfif>
 	
 	<cfscript>
 		if (arrayLen(arguments) LT 2) ;
 		
 		// parse the arguments and set up the new function definition
 		for (i=1; i LTE arrayLen(arrKeys); i++) {
-			arrKey = arrKeys["#i#"];
-			argName = arguments[arrKey];
+			argName = arguments["arg#i#"];
 			// the first argument is always the name of the new function
 			if (i EQ 1) {
 				attr.name = argName;
-				writeOutput(argName);
-				// writeOutput("DEFN: function name: "&attr.name&"<br>");
+				if (url.debug) writeOutput("DEFN: function name: <em>"&attr.name&"</em><br>");
+				
+			// if the second term is a simple value (string) and not enclosed in square brackets, then this is the comment
 			} else if (i EQ 2 AND isSimpleValue(argName) AND 
 				(NOT left(argName,1) IS "[" OR NOT right(argName, 1) IS "]")) {
 				attr.comment = argName;
-				writeOutput("DEFN: function comment: " );
+				if (url.debug) writeOutput("DEFN: function comment: <em>"&attr.comment&"</em><br>");
+			
+			// otherwise the second term will start the real definition
 			} else if (i GTE 2 AND i LTE 3 AND isSimpleValue(argName) AND 
 				left(argName,1) IS "[" AND right(argName, 1) IS "]") {
 				attr["argmap"] = argName;
-				writeOutput("DEFN: argument map defined: " );
+				if (url.debug) writeOutput("DEFN: argument map defined<br>");
+				
+			// other terms that are arrays are the functional meat of the new function being defined
 			} else if (i GT 1 AND isArray(argName)) {
 				attr.func[arityCount] = argName;
 				arityCount ++;
@@ -110,25 +129,32 @@
 		}
 	</cfscript>
 
-	--- defn attributes ---
+	<cfif url.debug>--- defn attributes ---<br></cfif>
 	<cfset variables[attr.name] = createObject("component", "func").init(attr, this)>
-	--- end defn attributes ---<br>
+	<cfif url.debug>--- end defn attributes ---<br></cfif>
+	
+	<!--- return notice that the function was created --->
+	<cfreturn "> user/#attr.name#">
 </cffunction>
 
-<cffunction name="println" output="false">
-	<cfset var arg = arguments>
+<cffunction name="println" output="true">
+	<cfset var numberOfArgs = arrayLen(arguments)>
 	<cfset var out = "">
+	<cfset var argumentValue = "">
+	
+	<cfif url.debug><h3>PRINTLN:</h3></cfif>
 	
 	<cfif arrayLen(structKeyArray(arguments)) EQ 1
 		AND isArray(arguments[1])>
-		--- YEP<br>
 		<cfset arg = arguments[1]>
 	</cfif>
 
-	--- calling println ---<br>
+	<cfif url.debug>--- calling println ---<br>
+	<cfdump var="#arguments#" label="PRINTLN arguments"></cfif>
 	
-	<cfloop array="#arg#" index="i">
-		<cfif isSimpleValue(i)><cfset out &= i></cfif>
+	<cfloop from="1" to="#numberOfArgs#" index="i">
+		<cfset argumentValue = arguments["arg#i#"]>
+		<cfif isSimpleValue(argumentValue)><cfset out &= argumentValue></cfif>
 	</cfloop>
 	
 	<cfreturn out>
@@ -140,12 +166,11 @@
 	
 	<cfif arrayLen(structKeyArray(arguments)) EQ 1
 		AND isArray(arguments[1])>
-		--- YEP
 		<cfset arg = arguments[1]>
 	</cfif>
 
-	--- calling + ---<br>
-	<cfdump var="#arg#" label="+ args">
+	<cfif url.debug>--- calling ADD ---<br>
+	<cfdump var="#arg#" label="+ args"></cfif>
 	<cfloop array="#arg#" index="i">
 		<cfif isNumeric(i)><cfset sum += i></cfif>
 	</cfloop>

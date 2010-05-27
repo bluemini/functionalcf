@@ -7,6 +7,7 @@
 
 <body>
 <!--- <cfset $(defn, "hello", "Says hello to whomever you pass it..", "[name]", [println, "Hello, ", "name"])> --->
+<h3>Calling $(println, "hello", "bob")</h3>
 <cfscript>
 	$(println, "hello, ", "bob");
 </cfscript>
@@ -18,7 +19,10 @@ for this try,
 	"[name]"	the arguments to pass to the function and map into the function definition
 	[println..]	an description of the function. To avoid it being evaluated, it is an implicit array
 --->
-<cfset $(defn, "hello", "Says hello", "[name]", [println, "I'd like to say hi to, ", "[name]"])>
+<h3>Calling $(defn, "hello", "Says hello", "[name]", [println, "I'd like to say hi to...", "[name]"])</h3>
+<cfset $(defn, "hello", "Says hello", "[name]", [println, "I'd like to say hi to...", "[name]"])>
+
+<h3>Calling $(hello, "John")</h3>
 <cfset $(hello, "John")>
 <cfabort>
 

@@ -30,9 +30,10 @@
 	<cffunction name="run">
 		<cfset var argMatch = arrayNew(1)>
 		<cfset var dynCounter = 1>
+		<cfset var newArgs = {}>
 		
-		--- running <cfoutput>#variables.attr.name#</cfoutput> ---<br>
-		<cfdump var="#arguments#" label="FUNC RUN">
+		<cfif request.debug>--- running <cfoutput>#variables.attr.name#</cfoutput> ---<br>
+		<cfdump var="#arguments#" label="FUNC RUN"></cfif>
 		<cfoutput>
 			
 		<!--- find the function definition associated with the number of args passed in --->
@@ -48,7 +49,9 @@
 			</cfif>
 		</cfloop>
 		
-		<cfdump var="#variables.attr.func#" label="FUNC function definition">
+		<cfif request.debug>
+			<cfdump var="#funcDecl#" label="FUNC function definition">
+		</cfif>
 		<!---
 		<cfif isSimpleValue(variables.attr.func[1][1])><cfoutput>#listLen(variables.attr.func[1][1])#, #numArgs#</cfoutput><cfelse>NOPE</cfif>
 		--->
@@ -74,15 +77,18 @@
 			</cfif>
 			<!--- <cfset argMatch[variables.argArray[dynCounter]] = argValue> --->
 		</cfloop>
-		<cfdump var="#argMatch#" label="ARGMATCH">
+		<cfif request.debug><cfdump var="#argMatch#" label="ARGMATCH"></cfif>
 		
-		<!---
-				<cfset argValue = "">
-				--- #UCASE(variables.attr.name)#: variable[#iAttr#] #argName#<br>
-		--->
+		<!--- assemble the array into an argument collection --->
+		<cfset newArgs["arg1"] = funcDecl[1]>
+		<cfloop from="1" to="#arrayLen(argMatch)#" index="iArgMatch">
+			<cfset newArgs["arg#iArgMatch+1#"] = argMatch[iArgMatch]>
+		</cfloop>
 		
-		--- Calling our defined function ---<cfdump var="#funcDecl[1]#"><cfdump var="#argMatch#">
-		<cfset variables.that.$(funcDecl[1], argMatch)>
+		<cfif request.debug>
+			--- Calling our defined function ---<cfdump var="#newArgs#" label="FUNC argumentCollection">
+		</cfif>
+		<cfset variables.that.$(argumentCollection=newArgs)>
 		</cfoutput>
 	</cffunction>
 	

@@ -118,5 +118,9 @@
 		</cfif>
 		<cfreturn false>
 	</cffunction>
+	
+	<cffunction name="tostring">
+		<cfreturn variables.attr.toString()>
+	</cffunction>
 
 </cfcomponent>

@@ -14,24 +14,24 @@
 
 <!---
 for this try, 
-	defn:		the define function
-	"hello"		the name of the function we are defining
-	"[name]"	the arguments to pass to the function and map into the function definition
-	[println..]	an description of the function. To avoid it being evaluated, it is an implicit array
+	defn:			the define function
+	"hello"			the name of the function we are defining
+	"says hello"	a document comment
+	"[name]"		the arguments to pass to the function and map into the function definition
+	[println..]		an description of the function. To avoid it being evaluated, it is an implicit array
 --->
-<h3>Calling $(defn, "hello", "Says hello", "[name]", [println, "I'd like to say hi to...", "[name]"])</h3>
-<cfset $(defn, "hello", "Says hello", "[name]", [println, "I'd like to say hi to...", "[name]"])>
+<h3>Calling $(defn, "myhellofunc", "Says hello", "[name]", [println, "I'd like to say hi to...", "[name]"])</h3>
+<cfset $(defn, "myhellofunc", "Says hello", "[name]", [println, "I'd like to say hi to...", "[name]"])>
 
-<h3>Calling $(hello, "John")</h3>
-<cfset $(hello, "John")>
-<cfabort>
+<h3>Calling $(myhellofunc, "John")</h3>
+<cfset $(myhellofunc, "John")>
 
-
+<!---
 <cfset $(defn, "double", "doubles whatever you give it", "[& val]", ["+", "[val]", "[val]"])>
 
 <cfoutput>
 	#$(double, 3)#
 </cfoutput>
-
+--->
 </body>
 </html>

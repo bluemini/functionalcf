@@ -34,5 +34,11 @@
 	</cffunction>
 	
 	<cffunction name="getData"><cfreturn variables.data></cffunction>
+	
+	<cffunction name="onMissingMethod" access="public" returntype="any">
+		<cfargument name="methodName" required="true">
+		<cfset var searchForKey = structFind(variables.data, arguments.methodName)>
+		<cfdump var="#searchForKey#"><cfabort>
+	</cffunction>
 
 </cfcomponent>

@@ -87,7 +87,7 @@
 </cffunction>
 
 
-<cffunction name="defn" output="true">
+<cffunction name="defn" output="true" hint="Allows you to define a function">
 	<cfset var arrKeys = structKeyArray(arguments)>
 	<cfset var arrKey = 0>
 	<cfset var attr = {}>
@@ -118,7 +118,8 @@
 			// otherwise the second term will start the real definition
 			} else if (i GTE 2 AND i LTE 3 AND isSimpleValue(argName) AND 
 				left(argName,1) IS "[" AND right(argName, 1) IS "]") {
-				attr["argmap"] = argName;
+				// argMap = createObject("component", "map").init(argName);
+				attr.argmap = argName;
 				if (url.debug) writeOutput("DEFN: argument map defined<br>");
 				
 			// other terms that are arrays are the functional meat of the new function being defined
@@ -167,8 +168,10 @@
 			// otherwise the second term will start the real definition
 			} else if (i GTE 2 AND i LTE 3 AND isSimpleValue(argName) AND 
 				left(argName,1) IS "[" AND right(argName, 1) IS "]") {
-				attr["argmap"] = argName;
-				if (url.debug) writeOutput("DEFN: argument map defined<br>");
+				temp = createObject("component", "map");
+				temp.init(argName);
+				// attr["argmap"] = argName;
+				// if (url.debug) writeOutput("DEFN: argument map defined<br>");
 				
 			// other terms that are arrays are the functional meat of the new function being defined
 			} else if (i GT 1 AND isArray(argName)) {
@@ -244,3 +247,6 @@
 	<cfreturn this>
 </cffunction>
 --->
+
+<cfset if = createObject("component", "func")>
+<cfset gt = createObject("component", "func")>

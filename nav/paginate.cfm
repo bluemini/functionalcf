@@ -1,8 +1,9 @@
-<cfdirectory directory="../" action="list" name="files">
-<cfquery name="sortedfiles" dbtype="query">SELECT * FROM files WHERE type = 'file' ORDER BY name</cfquery>
+<cfdirectory directory="#getDirectoryFromPath(getCurrentTemplatePath())#../" action="list" name="files">
+<cfdump var="#getTemplatePath()#">
+<cfquery name="sortedfiles" dbtype="query">SELECT * FROM files WHERE type = 'File' ORDER BY name</cfquery>
 <cfset last = "">
 <cfset prev = "">
-<cfset next = "">
+<cfset next = sortedFiles["name"][1]>
 <cfoutput query="sortedfiles">
 	<cfif refind("[0-9]+", name)>
 		<cfif prev IS NOT "">

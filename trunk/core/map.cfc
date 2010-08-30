@@ -14,6 +14,7 @@
 		<cfelse>
 			<cfloop from="1" to="#arrayLen(arguments.datastruct)#" index="i" step="2">
 				<cfset hashcode = hash(arguments.datastruct[i].tostring())>
+                <cfset variables.data[hashcode] = structNew()>
 				<cfset variables.data[hashcode].key = arguments.datastruct[i]>
 				<cfset variables.data[hashcode].data = arguments.datastruct[i+1]>
 			</cfloop>

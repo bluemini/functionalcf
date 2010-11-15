@@ -1,4 +1,4 @@
-<cfcomponent>
+<cfcomponent implements="IIterable">
 	
 	<cfset variables.data = structNew()>
 
@@ -40,6 +40,9 @@
 		<cfargument name="methodName" required="true">
 		<cfset var searchForKey = structFind(variables.data, arguments.methodName)>
 		<cfdump var="#searchForKey#"><cfabort>
+	</cffunction>
+
+    <cffunction name="getNext" returntype="any">
 	</cffunction>
 
 </cfcomponent>

@@ -1,8 +1,19 @@
 <cfset this.name = "funcex">
 <cfset this.sessionManagement = true>
+
 <cfparam name="url.debug" default="false">
 <cfset request.debug = url.debug>
 
+<!--- create a namespace into which to put the current functions --->
+<cfif NOT StructKeyExists(this, "fcf")>
+    <cfset this.fcf = StructNew()>
+</cfif>
+<cfif NOT StructKeyExists(this.fcf, "ns")>
+    <cfset this.fcf.ns = StructNew()>
+</cfif>
+
+
+<!--- $ is the rudimentary function that brings us to FCF core --->
 <cffunction name="$" access="public" output="true">
 	
 	<cfif url.debug>
@@ -12,8 +23,9 @@
 	
 	<cfset resp = "">
 	
-	<cfif arrayLen(arguments) LT 1>
-		<cfoutput>FunctionalCF - The first argument on the Run function ($) must be a function.</cfoutput>
+	<cfif arrayLen(arguments) NEQ 1>
+		<cfoutput>FunctionalCF - The Run function ($) must have one and only one argument.</cfoutput>
+		
 	<cfelse>
 		<cfif structKeyExists(arguments, "arg1")>
 			<cfset fn = arguments["arg1"]>
@@ -60,32 +72,6 @@
 	</cfif>
 </cffunction>
 
-<cffunction name="C" access="public" output="true">
-	<cfif arrayLen(arguments) NEQ 1>
-		<cfthrow message="funcex requires only one parameters">
-	</cfif>
-	
-	<cfset parsedRE = REFind("(([A-Za-z0-9])*\w)", arguments[1], 1, true)>
-	<cfdump var="#parsedRE#">
-	<cfloop from="1" to="#arrayLen(parsedRE.pos)#" index="i">
-		<cfoutput>#mid(arguments[1], parsedRE.pos[i], parsedRE.len[i])#<br></cfoutput>
-	</cfloop>
-	<cfabort>
-	
-	<cfset fn = arguments[1]>
-	<cfset arrayDeleteAt(arguments, 1)>
-	<cfset newArgs = structCopy(arguments)>
-	--- callin fn ---<br>
-	<cfif isObject(fn)>
-		<cfset fn.run(argumentCollection=newArgs)>
-	<cfelseif isCustomFunction(fn)>
-		<cfset fn(argumentCollection=newArgs)>
-	</cfif>
-	
-	--- $ arguments ---
-	<cfdump var="#arguments#">
-	--- end $ arguments ---<br>
-</cffunction>
 
 
 <cffunction name="defn" output="true" hint="Allows you to define a function">

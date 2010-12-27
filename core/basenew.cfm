@@ -7,11 +7,7 @@
 
 <cffunction name="$" access="public" output="true">
     
-    <cfset var meta = structNew()>
-    <cfset meta.symbolTable = structNew()>
-    <cfset meta.symbolCount = 1>
-	
-	<cfif url.debug>
+    <cfif url.debug>
 		<h3>$:</h3>
 		<cfdump var="#arguments#" label="$ arguments">
 	</cfif>
@@ -23,12 +19,12 @@
 	<cfelse>
     
         <cfset input = arguments[1]>
-        <cfset t = parse(input, meta)>
         
-        <cfset meta.symbolTable["sym#meta.symbolCount#"] = t>
-        <cfdump var="#meta#">
+        <!--- create a list from the body text --->
+        <cfset baseList = createObject("component", "List").init(input)>
         
-        <cfset out = meta.symbolTable["sym#meta.symbolCount#"].run()>
+        <!--- run the list, which will perform the primary top level function --->
+        <cfset out = baseList.run()>
         <cfoutput>#out#<br></cfoutput>
         
         <cfabort>
@@ -185,47 +181,7 @@
 
 
 
-<cffunction name="parse">
-    <cfargument name="codeString">
-    <cfargument name="meta">
-    
-    <cfset var obj = {}>
-    <cfset var tempCodeString = "">
-    <cfset var openingParen = 0>
-    <cfset var closingParen = 0>
-    
-    <cfoutput>Parsing: '#codeString#'<br/>  </cfoutput>
-    
-    <!--- treat any enclosing parantheses --->
-    <cfset openingParen = find("(", codeString)>
-    <cfif openingParen>
-        <cfset closingParen = find(")", reverse(arguments.codeString))>
-        <cfif closingParen EQ 0><cfthrow message="Unmatched parentheses in expression '#codeString#"></cfif>
-        <cfset encFunc = parse(mid(codeString, openingParen+1, len(codeString)-closingParen-openingParen), meta)>
-        
-        <!--- reform codestring --->
-        <cfif openingParen GT 1><cfset tempCodeString = tempCodeString & left(codeString, openingParen-1)></cfif>
-        <cfset tempCodeString = tempCodeString & " :sym#meta.symbolCount# ">
-        <cfif closingParen GT 1><cfset tempCodeString = tempCodeString & right(codeString, closingParen-1)></cfif>
-        <cfset codeString = tempCodeString>
 
-        <cfset meta.symbolTable['sym#meta.symbolCount#'] = encFunc>
-        <cfset meta.symbolCount ++>
-    </cfif>
-    
-    <cfoutput>Making a list of #codestring#<br></cfoutput>
-    <cfset obj = createObject("component", "list")>
-    <cfset obj.init(codeString)>
-    
-    <!--- <cfloop list="#arguments.codeString#" index="symbol">
-        <cfif left(symbol, 1) IS "(">
-            
-            <cfset execTree[index] = parse(mid(codeString,))>
-        </cfif>
-    </cfloop> --->
-    
-    <cfreturn obj>
-</cffunction>
 
 <cffunction name="onRequest" returntype="void">
 	<cfargument name="targetpage" type="any" required="true">

@@ -1,15 +1,25 @@
-<cfcomponent>
+<cfcomponent implement="IRunnable">
+    
+    <!---
+        Represents a list of items in FCF
+        
+        Has basic implementation fucntionality
+            First/Rest
+            Print()
+            It is used as the means to passing a description of a function to a functional object
+    --->
 
 	<cfset variables.data = "">
+    <cfset variables.meta = StructNew()>
 
 	<cffunction name="init">
-		<cfargument name="contents">
+		<cfargument name="contents" type="any">
         
-        <cfset contents = replace(contents, ",", " ", "ALL")>
+        <cfset contents = Replace(contents, ",", " ", "ALL")>
         <cfset contents = REReplace(contents, "[ ]+", " ", "ALL")>
         <cfset variables.data = contents>
-		
-		<!--- check that the incoming data is a struct --->
+        <cfset this.data = contents>
+        
         <cfreturn this>
 	</cffunction>
 	
@@ -19,13 +29,15 @@
         
         <!--- attempt to instantiate an object of type first param --->
         <cftry>
+            Creating instance of <cfoutput>#fnName#</cfoutput><br>
             <cfset fn = createObject("component", fnName)>
             <cfcatch></cfcatch>
         </cftry>
         
+        <!--- if we obtained a function or object, then we can run it --->
         <cfif isObject(fn)>
             <cfif url.debug><cfoutput>--- called by Object fn ---<br></cfoutput></cfif>
-            <cfset resp = fn.init(rest()).run()>
+            <cfset resp = fn.init(fnName, rest()).run()>
         <cfelseif isCustomFunction(fn)>
             <cfif url.debug><cfoutput>--- called by Custom Function fn ---<br></cfoutput></cfif>
             <cfset resp = fn(argumentCollection=newArgs)>
@@ -37,7 +49,7 @@
             <cfreturn print()>
         </cfif>
         
-		<cfif structKeyExists(arguments, "arg1")>
+		<!--- <cfif structKeyExists(arguments, "arg1")>
 			<cfset hashcode = hash(arguments["arg1"].tostring())>
 		</cfif>
 		<!--- try and locate the key and return the value --->
@@ -45,7 +57,7 @@
 			<cfreturn variables.data[hashcode].data>
 		<cfelse>
 			<cfreturn "nil">
-		</cfif>
+		</cfif> --->
 	</cffunction>
 	
     <cffunction name="print">
@@ -63,5 +75,7 @@
 		<cfset var searchForKey = structFind(variables.data, arguments.methodName)>
 		<cfdump var="#searchForKey#"><cfabort>
 	</cffunction>
+
+
 
 </cfcomponent>

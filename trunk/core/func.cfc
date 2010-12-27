@@ -7,22 +7,43 @@
 	
 	<cfset variables.argArray = arrayNew(1)>
 	
+    <!---
+        Initialise the func with a 
+        name:Struct
+            Comment:        text description of the function - not required
+            Func:           array of at least one record that defines the function body
+            Name:           the name of the function, by which it will be called
+        
+        scope:Object
+            An object against which the function will be called.
+    --->
 	<cffunction name="init">
-		<cfargument name="name">
+        <cfargument name="name">
+		<cfargument name="contents">
 		<cfargument name="scope">
-		<cfset variables.attr = arguments.name>
+        
+		<cfset variables.name = arguments.name>
 		<cfset variables.that = arguments.scope>
 		
+        <cfset variables.meta.symbolTable = StructNew()>
+        <cfset variables.meta.symbolCount = 0>
+
 		<!--- if args were passed in, then store them locally in an array --->
-		<cfif structKeyExists(arguments.name, "args")>
-			<cfset processArgs(arguments.name.args)>
+		<cfif structKeyExists(arguments.contents, "args")>
+			<cfset processArgs(arguments.contents.args)>
 		</cfif>
 		
-		<cfif NOT structKeyExists(arguments.name, "func")
+        <!--- parse the incoming string into a symbol tree --->
+        <cfset parse(contents._getData(), variables.meta)>
+        
+        <!--- now evaluate the symbol tree into an execution tree --->
+        <cfset evaluateTree(variables.meta)>
+        
+		<!--- <cfif NOT structKeyExists(arguments.name, "func")
 			OR NOT isArray(arguments.name.func)
 			OR arrayLen(arguments.name.func) LT 1>
 			<cfthrow message="A function definition must contain a body.">
-		</cfif>
+		</cfif> --->
 		
 		<cfreturn this>
 	</cffunction>
@@ -122,5 +143,53 @@
 	<cffunction name="tostring">
 		<cfreturn variables.attr.toString()>
 	</cffunction>
+
+    <!--- parses a string argument into a structured nested execution tree --->
+    <cffunction name="parse">
+        <cfargument name="codeString">
+        <cfargument name="meta">
+    
+        <cfset var obj = {}>
+        <cfset var tempCodeString = "">
+        <cfset var openingParen = 0>
+        <cfset var closingParen = 0>
+    
+        <cfoutput>Parsing: '#codeString#'<br/>  </cfoutput>
+    
+        <!--- treat any enclosing parantheses --->
+        <cfset openingParen = find("(", codeString)>
+        <cfif openingParen>
+            <cfset closingParen = find(")", reverse(codeString))>
+            <cfif closingParen EQ 0><cfthrow message="Unmatched parentheses in expression '#codeString#"></cfif>
+
+            <cfoutput>Making a list of #codestring#/#meta.symbolCount#<br></cfoutput>
+            <cfset encFunc = parse(mid(codeString, openingParen+1, len(codeString)-closingParen-openingParen), meta)>
+            
+            <!--- reform codestring --->
+            <cfif openingParen GT 1><cfset tempCodeString = tempCodeString & left(codeString, openingParen-1)></cfif>
+            <cfset tempCodeString = tempCodeString & " :sym#meta.symbolCount# ">
+            <cfif closingParen GT 1><cfset tempCodeString = tempCodeString & right(codeString, closingParen-1)></cfif>
+            <cfset codeString = tempCodeString>
+            
+            <cfoutput>Storing the list object in symbolTable<br></cfoutput>
+        </cfif>
+    
+    
+        <!--- <cfloop list="#arguments.codeString#" index="symbol">
+        <cfif left(symbol, 1) IS "(">
+            <cfset execTree[index] = parse(mid(codeString,))>
+        </cfif>
+        </cfloop> --->
+    
+        <cfset obj = createObject("component", "List").init(codeString)>
+        <cfset meta.symbolTable['sym#meta.symbolCount#'] = obj>
+        <cfset meta.symbolCount ++>
+
+        <cfreturn obj>
+    </cffunction>
+    
+    <cffunction name="evaluateTree">
+        <cfthrow message="This method must be overridden">
+    </cffunction>
 
 </cfcomponent>

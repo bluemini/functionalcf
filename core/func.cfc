@@ -158,8 +158,40 @@
     
         <!--- treat any enclosing parantheses --->
         <cfset openingParen = find("(", codeString)>
-        <cfif openingParen>
+		<cfset openingSquare = find("[", codeString)>
+		<cfset openingQuote = Find("'", codeString)>
+		
+		<cfset level = getLowest(openingParen, openingSquare, openingQuote)>		
+        <cfif level EQ 1>
             <cfset closingParen = find(")", reverse(codeString))>
+            <cfif closingParen EQ 0><cfthrow message="Unmatched parentheses in expression '#codeString#"></cfif>
+
+            <cfoutput>Making a list of #codestring#/#meta.symbolCount#<br></cfoutput>
+            <cfset encFunc = parse(mid(codeString, openingParen+1, len(codeString)-closingParen-openingParen), meta)>
+            
+            <!--- reform codestring --->
+            <cfif openingParen GT 1><cfset tempCodeString = tempCodeString & left(codeString, openingParen-1)></cfif>
+            <cfset tempCodeString = tempCodeString & " :sym#meta.symbolCount# ">
+            <cfif closingParen GT 1><cfset tempCodeString = tempCodeString & right(codeString, closingParen-1)></cfif>
+            <cfset codeString = tempCodeString>
+            
+            <cfoutput>Storing the list object in symbolTable<br></cfoutput>
+        <cfelseif level EQ 2>
+            <cfset closingParen = find("]", reverse(codeString))>
+            <cfif closingParen EQ 0><cfthrow message="Unmatched parentheses in expression '#codeString#"></cfif>
+
+            <cfoutput>Making a list of #codestring#/#meta.symbolCount#<br></cfoutput>
+            <cfset encFunc = parse(mid(codeString, openingParen+1, len(codeString)-closingParen-openingParen), meta)>
+            
+            <!--- reform codestring --->
+            <cfif openingParen GT 1><cfset tempCodeString = tempCodeString & left(codeString, openingParen-1)></cfif>
+            <cfset tempCodeString = tempCodeString & " :sym#meta.symbolCount# ">
+            <cfif closingParen GT 1><cfset tempCodeString = tempCodeString & right(codeString, closingParen-1)></cfif>
+            <cfset codeString = tempCodeString>
+            
+            <cfoutput>Storing the list object in symbolTable<br></cfoutput>
+        <cfelseif level EQ 1>
+            <cfset closingParen = find("'", reverse(codeString))>
             <cfif closingParen EQ 0><cfthrow message="Unmatched parentheses in expression '#codeString#"></cfif>
 
             <cfoutput>Making a list of #codestring#/#meta.symbolCount#<br></cfoutput>
@@ -191,5 +223,57 @@
     <cffunction name="evaluateTree">
         <cfthrow message="This method must be overridden">
     </cffunction>
+	
+    <cffunction name="getLowest">
+        <cfargument name="one">
+        <cfargument name="two">
+        <cfargument name="three">
+		
+		<cfset var lowest = one>
+		
+		<cfif one EQ 0>
+            <cfif two EQ 0>
+                <cfif three EQ 0>
+				    <cfreturn 0>
+				<cfelse>
+				    <cfreturn 3>
+				</cfif>
+			<cfelse>
+                <cfif three EQ 0>
+				    <cfreturn 2>
+				<cfelseif three GT two>
+				    <cfreturn 2>
+				<cfelse>
+				    <cfreturn 3>
+				</cfif>
+            </cfif>
+        <cfelse>
+            <cfif two EQ 0>
+			    <cfif three EQ 0>
+				    <cfreturn 1>
+				<cfelseif three GT one>
+				    <cfreturn 1>
+				<cfelse>
+				    <cfreturn 3>
+				</cfif>
+            <cfelse>
+			    <cfif three EQ 0>
+				    <cfif one GT two>
+					    <cfreturn 2>
+					<cfelse>
+					    <cfreturn 1>
+					</cfif>
+                <cfelse>
+				    <cfif one LT two AND one LT three>
+					    <cfreturn 1>
+					<cfelseif two LT one AND two LT three>
+					    <cfreturn 2>
+					<cfelse>
+					    <cfreturn 3>
+					</cfif>
+				</cfif>
+    		</cfif>
+        </cfif>
+	</cffunction>
 
 </cfcomponent>

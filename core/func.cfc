@@ -6,6 +6,10 @@
 	--->
 	
 	<cfset variables.argArray = arrayNew(1)>
+	<cfset variables.parseStack = ArrayNew(1)>
+	<cfset variables.parseSymbols = StructNew()>
+	<cfset variables.parseCurrentSymbol = "">
+	<cfset variables.parseCurrentStackTop = 0>
 	
     <!---
         Initialise the func with a 
@@ -143,9 +147,109 @@
 	<cffunction name="tostring">
 		<cfreturn variables.attr.toString()>
 	</cffunction>
+	
+	<cffunction name="parse" output="false">
+        <cfargument name="codeString">
+        <cfargument name="meta">
+    
+        <cfset var obj = {}>
+        <cfset var tempCodeString = "">
+        <cfset var codeLen = Len(arguments.codeString)>
+        <cfset var count = 0>
+		<cfset var char = "">
+		<cfset var symCount = 1>
+		<cfset var inString = false>
+		
+		<cfset variables.parseCurrentSymbol = "sym1">
+		<cfset variables.parseSymbols[variables.parseCurrentSymbol] = "">
+    
+        <cfdump var="#variables.meta#">
+        <cfoutput>Parsing: '#codeString#'<br/>  </cfoutput>
+
+        <!--- move over the text and tokenise as we go --->
+		<cftry>
+		<cfloop from="1" to="#codeLen#" index="count">
+            <cfset char = mid(codeString, count, 1)>
+			<cfoutput><br>#char#</cfoutput>
+			<cfif char IS "[">
+				<!--- place the current parsed string on --->
+				<cfset variables.parseCurrentStackTop++>
+				<cfset variables.parseStack[variables.parseCurrentStackTop] = StructNew()>
+				<cfset variables.parseStack[variables.parseCurrentStackTop].char = ']'>
+                <cfset variables.parseStack[variables.parseCurrentStackTop].count = variables.parseCurrentSymbol>
+				<cfset symCount++>
+				<cfset variables.parseCurrentSymbol = "sym#symCount#">
+				<cfset variables.parseSymbols[variables.parseCurrentSymbol] = "">
+                <cfdump var="#variables.parseSymbols#">
+				<cfdump var="#variables.parseStack#">
+            <cfelseif char IS "(">
+                <!--- place the current parsed string on --->
+                <cfset variables.parseCurrentStackTop++>
+                <cfset variables.parseStack[variables.parseCurrentStackTop] = StructNew()>
+                <cfset variables.parseStack[variables.parseCurrentStackTop].char = ')'>
+                <cfset variables.parseStack[variables.parseCurrentStackTop].count = variables.parseCurrentSymbol>
+                <cfset symCount++>
+                <cfset variables.parseCurrentSymbol = "sym#symCount#">
+                <cfset variables.parseSymbols[variables.parseCurrentSymbol] = "">
+                <cfdump var="#variables.parseSymbols#">
+                <cfdump var="#variables.parseStack#">
+            <cfelseif char IS "'" AND NOT inString>
+                <!--- place the current parsed string on --->
+                <cfset variables.parseCurrentStackTop++>
+                <cfset variables.parseStack[variables.parseCurrentStackTop] = StructNew()>
+                <cfset variables.parseStack[variables.parseCurrentStackTop].char = "'">
+                <cfset variables.parseStack[variables.parseCurrentStackTop].count = variables.parseCurrentSymbol>
+                <cfset symCount++>
+                <cfset variables.parseCurrentSymbol = "sym#symCount#">
+                <cfset variables.parseSymbols[variables.parseCurrentSymbol] = "">
+				<cfset inString = true>
+                <cfdump var="#variables.parseSymbols#">
+                <cfdump var="#variables.parseStack#">
+            <cfelseif char IS "]">
+                <!--- check the top of the stack --->
+				<cfif variables.parseStack[variables.parseCurrentStackTop].char IS NOT char>
+				    <cfthrow message="unmatched [] in function definition...">
+				</cfif>
+                <cfset variables.symbolSymbol = variables.parseCurrentSymbol>
+                <cfset variables.parseCurrentSymbol = variables.parseStack[variables.parseCurrentStackTop].count>
+                <cfset variables.parseCurrentStackTop-->
+                <cfset variables.parseSymbols[variables.parseCurrentSymbol] &= " #symbolSymbol#">
+            <cfelseif char IS ")">
+                <!--- check the top of the stack --->
+                <cfif variables.parseStack[variables.parseCurrentStackTop].char IS NOT char>
+                    <cfthrow message="unmatched () in function definition...">
+                </cfif>
+                <cfset variables.symbolSymbol = variables.parseCurrentSymbol>
+                <cfset variables.parseCurrentSymbol = variables.parseStack[variables.parseCurrentStackTop].count>
+                <cfset variables.parseCurrentStackTop-->
+                <cfset variables.parseSymbols[variables.parseCurrentSymbol] &= " #symbolSymbol#">
+            <cfelseif char IS "'" AND inString>
+                <!--- check the top of the stack --->
+                <cfif variables.parseStack[variables.parseCurrentStackTop].char IS NOT char>
+                    <cfthrow message="unmatched '' in function definition...">
+                </cfif>
+                <cfset variables.symbolSymbol = variables.parseCurrentSymbol>
+                <cfset variables.parseCurrentSymbol = variables.parseStack[variables.parseCurrentStackTop].count>
+                <cfset variables.parseCurrentStackTop-->
+                <cfset variables.parseSymbols[variables.parseCurrentSymbol] &= " #symbolSymbol#">
+				<cfset inString = false>
+            <cfelse>
+                <cfset variables.parseSymbols[variables.parseCurrentSymbol] &= char>
+			</cfif>
+			
+			<cfoutput>#variables.parseSymbols[variables.parseCurrentSymbol]#</cfoutput>
+		</cfloop>
+            <cfcatch>
+                <cfdump var="#variables.parseSymbols#">
+                <cfdump var="#variables.parseStack#">
+                <cfdump var="#cfcatch#">
+				<cfabort>
+			</cfcatch>
+		</cftry>
+	</cffunction>
 
     <!--- parses a string argument into a structured nested execution tree --->
-    <cffunction name="parse">
+    <cffunction name="parse_old">
         <cfargument name="codeString">
         <cfargument name="meta">
     
@@ -153,66 +257,95 @@
         <cfset var tempCodeString = "">
         <cfset var openingParen = 0>
         <cfset var closingParen = 0>
+		<cfset var startFind = 0>
+		<cfset var count = 0>
     
+        <cfdump var="#variables.meta#">
         <cfoutput>Parsing: '#codeString#'<br/>  </cfoutput>
     
         <!--- treat any enclosing parantheses --->
-        <cfset openingParen = find("(", codeString)>
-		<cfset openingSquare = find("[", codeString)>
-		<cfset openingQuote = Find("'", codeString)>
-		
+        <cfset openingParen = find("(", codeString, startFind)>
+		<cfset openingSquare = find("[", codeString, startFind)>
+		<cfset openingQuote = Find("'", codeString, startFind)>
 		<cfset level = getLowest(openingParen, openingSquare, openingQuote)>		
-        <cfif level EQ 1>
-            <cfset closingParen = find(")", reverse(codeString))>
-            <cfif closingParen EQ 0><cfthrow message="Unmatched parentheses in expression '#codeString#"></cfif>
 
-            <cfoutput>Making a list of #codestring#/#meta.symbolCount#<br></cfoutput>
-            <cfset encFunc = parse(mid(codeString, openingParen+1, len(codeString)-closingParen-openingParen), meta)>
-            
-            <!--- reform codestring --->
-            <cfif openingParen GT 1><cfset tempCodeString = tempCodeString & left(codeString, openingParen-1)></cfif>
-            <cfset tempCodeString = tempCodeString & " :sym#meta.symbolCount# ">
-            <cfif closingParen GT 1><cfset tempCodeString = tempCodeString & right(codeString, closingParen-1)></cfif>
-            <cfset codeString = tempCodeString>
-            
-            <cfoutput>Storing the list object in symbolTable<br></cfoutput>
-        <cfelseif level EQ 2>
-            <cfset closingParen = find("]", reverse(codeString))>
-            <cfif closingParen EQ 0><cfthrow message="Unmatched parentheses in expression '#codeString#"></cfif>
-
-            <cfoutput>Making a list of #codestring#/#meta.symbolCount#<br></cfoutput>
-            <cfset encFunc = parse(mid(codeString, openingParen+1, len(codeString)-closingParen-openingParen), meta)>
-            
-            <!--- reform codestring --->
-            <cfif openingParen GT 1><cfset tempCodeString = tempCodeString & left(codeString, openingParen-1)></cfif>
-            <cfset tempCodeString = tempCodeString & " :sym#meta.symbolCount# ">
-            <cfif closingParen GT 1><cfset tempCodeString = tempCodeString & right(codeString, closingParen-1)></cfif>
-            <cfset codeString = tempCodeString>
-            
-            <cfoutput>Storing the list object in symbolTable<br></cfoutput>
-        <cfelseif level EQ 1>
-            <cfset closingParen = find("'", reverse(codeString))>
-            <cfif closingParen EQ 0><cfthrow message="Unmatched parentheses in expression '#codeString#"></cfif>
-
-            <cfoutput>Making a list of #codestring#/#meta.symbolCount#<br></cfoutput>
-            <cfset encFunc = parse(mid(codeString, openingParen+1, len(codeString)-closingParen-openingParen), meta)>
-            
-            <!--- reform codestring --->
-            <cfif openingParen GT 1><cfset tempCodeString = tempCodeString & left(codeString, openingParen-1)></cfif>
-            <cfset tempCodeString = tempCodeString & " :sym#meta.symbolCount# ">
-            <cfif closingParen GT 1><cfset tempCodeString = tempCodeString & right(codeString, closingParen-1)></cfif>
-            <cfset codeString = tempCodeString>
-            
-            <cfoutput>Storing the list object in symbolTable<br></cfoutput>
-        </cfif>
+        <!--- move through the string --->
+		<cfloop condition="level GT 0 AND count LT 10">
+	        <cfif level EQ 1>
+	            <cfset closingParen = find(")", reverse(codeString))>
+	            <cfif closingParen EQ 0><cfthrow message="Unmatched parentheses in expression '#codeString#"></cfif>
+	
+	            <cfoutput>Making a list of #codestring#/#meta.symbolCount#<br></cfoutput>
+	            <cfset encFunc = parse(mid(codeString, openingParen+1, len(codeString)-closingParen-openingParen), meta)>
+	            
+	            <!--- reform codestring --->
+	            <cfif openingParen GT 1><cfset tempCodeString = tempCodeString & left(codeString, openingParen-1)></cfif>
+	            <cfset tempCodeString = tempCodeString & " :sym#meta.symbolCount# ">
+	            <cfif closingParen GT 1><cfset tempCodeString = tempCodeString & right(codeString, closingParen-1)></cfif>
+	            <cfset codeString = tempCodeString>
+	            
+	            <cfoutput>Storing the list object in symbolTable<br></cfoutput>
+	            
+	            <cfset obj = createObject("component", "List").init(codeString)>
+	            <cfset meta.symbolTable['sym#meta.symbolCount#'] = obj>
+	            <cfset meta.symbolCount ++>
+	            <cfset startFind = openingParen+1>
+	
+	        <cfelseif level EQ 2>
+	            <cfset closingSquare = find("]", reverse(codeString))>
+	            <cfif closingSquare EQ 0><cfthrow message="Unmatched parentheses in expression '#codeString#"></cfif>
+	
+	            <cfoutput>Making a list of #codestring#/#meta.symbolCount#<br></cfoutput>
+	            <cfset encFunc = parse(mid(codeString, openingSquare+1, len(codeString)-closingSquare-openingSquare), meta)>
+	            
+	            <!--- reform codestring --->
+	            <cfif openingSquare GT 1><cfset tempCodeString = tempCodeString & left(codeString, openingSquare-1)></cfif>
+	            <cfset tempCodeString = tempCodeString & " :sym#meta.symbolCount# ">
+	            <cfif closingSquare GT 1><cfset tempCodeString = tempCodeString & right(codeString, closingSquare-1)></cfif>
+	            <cfset codeString = tempCodeString>
+	            
+	            <cfoutput>Storing the list object in symbolTable<br></cfoutput>
+                <cfset obj = createObject("component", "List").init(codeString)>
+	            <cfset meta.symbolTable['sym#meta.symbolCount#'] = obj>
+	            <cfset meta.symbolCount ++>
+                <cfset startFind = openingSquare+1>
+	
+	        <cfelseif level EQ 1>
+	            <cfset closingQuote = find("'", reverse(codeString))>
+	            <cfif closingQuote EQ 0><cfthrow message="Unmatched parentheses in expression '#codeString#"></cfif>
+	
+	            <cfoutput>Making a list of #codestring#/#meta.symbolCount#<br></cfoutput>
+	            <cfset encFunc = parse(mid(codeString, openingQuote+1, len(codeString)-closingQuote-openingQuote), meta)>
+	            
+	            <!--- reform codestring --->
+	            <cfif openingQuote GT 1><cfset tempCodeString = tempCodeString & left(codeString, openingQuote-1)></cfif>
+	            <cfset tempCodeString = tempCodeString & " :sym#meta.symbolCount# ">
+	            <cfif closingQuote GT 1><cfset tempCodeString = tempCodeString & right(codeString, closingQuote-1)></cfif>
+	            <cfset codeString = tempCodeString>
+	            
+	            <cfoutput>Storing the list object in symbolTable<br></cfoutput>
+                <cfset obj = createObject("component", "List").init(codeString)>
+	            <cfset meta.symbolTable['sym#meta.symbolCount#'] = obj>
+	            <cfset meta.symbolCount ++>
+                <cfset startFind = openingQuote+1>
+	
+	        </cfif>
     
+            <!--- treat any enclosing parantheses --->
+            <cfset openingParen = find("(", codeString, startFind)>
+            <cfset openingSquare = find("[", codeString, startFind)>
+            <cfset openingQuote = Find("'", codeString, startFind)>
+            <cfset level = getLowest(openingParen, openingSquare, openingQuote)>    
+			<cfset count = count + 1>
+			    
+	    </cfloop>
     
         <!--- <cfloop list="#arguments.codeString#" index="symbol">
         <cfif left(symbol, 1) IS "(">
             <cfset execTree[index] = parse(mid(codeString,))>
         </cfif>
         </cfloop> --->
-    
+        <cfoutput>#level#, #codeString#<br></cfoutput>
         <cfset obj = createObject("component", "List").init(codeString)>
         <cfset meta.symbolTable['sym#meta.symbolCount#'] = obj>
         <cfset meta.symbolCount ++>

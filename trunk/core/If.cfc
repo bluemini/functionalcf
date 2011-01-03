@@ -7,7 +7,7 @@
         
         <cfset super.init("defn", arguments.contents, this)>
         
-        <cfdump var="#variables.meta#" label="DEFN meta">
+        <cfdump var="#variables.meta#" label="IF meta">
         
         <cfreturn this>
     </cffunction>
@@ -16,7 +16,8 @@
     </cffunction>
     
     <cffunction name="run">
-        Dooby dooo.
+        <!--- get the response from running the first argument --->
+		<cfset temp = GetToken(variables.meta.symboltable[1].sym0.run())>
     </cffunction>
 
 </cfcomponent>

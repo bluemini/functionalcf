@@ -29,9 +29,9 @@
         
         <!--- attempt to instantiate an object of type first param --->
         <cftry>
-            Creating instance of <cfoutput>#fnName#</cfoutput><br>
-            <cfset fn = createObject("component", fnName)>
-            <cfcatch></cfcatch>
+            Creating instance of <cfoutput>#fnName#</cfoutput>
+            <cfset fn = createObject("component", fnName)><br>
+            <cfcatch> - failed<br></cfcatch>
         </cftry>
         
         <!--- if we obtained a function or object, then we can run it --->

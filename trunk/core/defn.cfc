@@ -16,12 +16,15 @@
         <cfset super.init("defn", arguments.contents, this)>
         
 	    <cfdump var="#variables.meta#" label="DEFN meta">
+	    <cfabort>
 	    
 	    <cfreturn this>
 	</cffunction>
     
     <cffunction name="evaluateTree">
-        <cfset variables.meta.symbolTable["sym1"].run()>
+		<cfdump var="#variables.parseSymbols["sym1"]#">
+		<cfabort>
+        <cfset variables.parseSymbols["sym1"].run()>
     </cffunction>
     
     <cffunction name="run">

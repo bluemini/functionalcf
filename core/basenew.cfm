@@ -20,14 +20,14 @@
     
         <cfset input = arguments[1]>
         
-        <!--- create a list from the body text --->
+        <!--- Since FunctionCF is drawing on the Lisp idea, where even the program code is a list,
+        we need to create a list from the body text --->
         <cfset baseList = createObject("component", "List").init(input)>
         
         <!--- run the list, which will perform the primary top level function --->
         <cfset out = baseList.run()>
-        <cfoutput>#out#<br></cfoutput>
-        
-        <cfabort>
+        <cfdump var="#out#">
+        <cfset out.run()>
     
 		<cfif structKeyExists(arguments, "arg1")>
 			<cfset fn = arguments["arg1"]>

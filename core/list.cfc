@@ -16,6 +16,8 @@
 		<cfargument name="contents" type="any">
         
         <cfset contents = Replace(contents, ",", " ", "ALL")>
+        
+        <!--- TODO: Improve this step, it's currently pretty crude, as this will affect spaces in string literals too --->
         <cfset contents = REReplace(contents, "[ ]+", " ", "ALL")>
         <cfset variables.data = contents>
         <cfset this.data = contents>
@@ -23,6 +25,8 @@
         <cfreturn this>
 	</cffunction>
 	
+    <!--- when you run a list, if the first item is a function, then we call that function with the reamining
+    arguments. Otherwise, we return it as a list. --->
 	<cffunction name="run">
 		<cfset var fnName = ListGetAt(variables.data, 1, " ")>
         <cfset var fn = {}>
@@ -31,13 +35,13 @@
         <cftry>
             Creating instance of <cfoutput>#fnName#</cfoutput>
             <cfset fn = createObject("component", fnName)><br>
-            <cfcatch> - failed<br></cfcatch>
+            <cfcatch> - failed (#fnName# is not a function)<br></cfcatch>
         </cftry>
         
         <!--- if we obtained a function or object, then we can run it --->
         <cfif isObject(fn)>
-            <cfif url.debug><cfoutput>--- called by Object fn ---<br></cfoutput></cfif>
-            <cfset resp = fn.init(fnName, rest()).run()>
+            <cfif url.debug><cfoutput>--- #fnName# is an object, calling init("#rest().data#") ---<br></cfoutput></cfif>
+            <cfset resp = fn.init(rest()).run()>
         <cfelseif isCustomFunction(fn)>
             <cfif url.debug><cfoutput>--- called by Custom Function fn ---<br></cfoutput></cfif>
             <cfset resp = fn(argumentCollection=newArgs)>
@@ -46,7 +50,7 @@
             <cfset tempFunc = variables[fn]>
             <cfset resp = tempFunc(newArgs)>
         <cfelse>
-            <cfreturn print()>
+            <cfset resp = print()>
         </cfif>
         
 		<!--- <cfif structKeyExists(arguments, "arg1")>
@@ -58,8 +62,11 @@
 		<cfelse>
 			<cfreturn "nil">
 		</cfif> --->
+        
+        <cfreturn resp>
 	</cffunction>
 	
+    <!--- not sure if this function is required...leaving in for a while. --->
     <cffunction name="print">
         <cfreturn "(" & variables.data & ")">
     </cffunction>

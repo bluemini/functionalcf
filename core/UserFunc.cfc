@@ -1,9 +1,10 @@
-<cfinterface displayName="FunctionalCF Core" hint="">
+<cfcomponent extends="func" implements="IRunnable">
 
-    <cffunction name="run"></cffunction>
     <cffunction name="init" returntype="any" output="true" >
         <cfargument name="contents" type="any">
         <cfargument name="scope" type="any">
+        
+        <cfreturn this>
     </cffunction>
 
-</cfinterface>
+</cfcomponent>

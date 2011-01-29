@@ -41,15 +41,7 @@
         <cfset parse(contents._getData(), variables.meta)>
         
         <!--- now evaluate the symbol tree into an execution tree --->
-        <cfset evaluateTree(variables.meta)>
-        
-		<!--- <cfif NOT structKeyExists(arguments.name, "func")
-			OR NOT isArray(arguments.name.func)
-			OR arrayLen(arguments.name.func) LT 1>
-			<cfthrow message="A function definition must contain a body.">
-		</cfif> --->
-		
-		<cfreturn this>
+        <cfreturn evaluateTree()>
 	</cffunction>
 	
 	<cffunction name="run">
@@ -161,7 +153,9 @@
 		<cfset var inString = false>
 		
 		<cfset variables.parseCurrentSymbol = "sym1">
-		<cfset variables.parseSymbols[variables.parseCurrentSymbol] = "">
+		<cfset variables.parseSymbols[variables.parseCurrentSymbol] = ArrayNew(1)>
+        <cfset variables.parseSymbols[variables.parseCurrentSymbol][1] = "">
+        <cfset variables.parseSymbols[variables.parseCurrentSymbol][2] = "BASE">
     
         <cfdump var="#variables.meta#">
         <cfoutput>Parsing: '#codeString#'<br/>  </cfoutput>
@@ -179,7 +173,9 @@
                 <cfset variables.parseStack[variables.parseCurrentStackTop].count = variables.parseCurrentSymbol>
 				<cfset symCount++>
 				<cfset variables.parseCurrentSymbol = "sym#symCount#">
-				<cfset variables.parseSymbols[variables.parseCurrentSymbol] = "">
+				<cfset variables.parseSymbols[variables.parseCurrentSymbol] = ArrayNew(1)>
+                <cfset variables.parseSymbols[variables.parseCurrentSymbol][1] = "">
+                <cfset variables.parseSymbols[variables.parseCurrentSymbol][2] = "ARRAY">
                 <cfdump var="#variables.parseSymbols#">
 				<cfdump var="#variables.parseStack#">
             <cfelseif char IS "(">
@@ -190,7 +186,9 @@
                 <cfset variables.parseStack[variables.parseCurrentStackTop].count = variables.parseCurrentSymbol>
                 <cfset symCount++>
                 <cfset variables.parseCurrentSymbol = "sym#symCount#">
-                <cfset variables.parseSymbols[variables.parseCurrentSymbol] = "">
+                <cfset variables.parseSymbols[variables.parseCurrentSymbol] = ArrayNew(1)>
+                <cfset variables.parseSymbols[variables.parseCurrentSymbol][1] = "">
+                <cfset variables.parseSymbols[variables.parseCurrentSymbol][2] = "LIST">
                 <cfdump var="#variables.parseSymbols#">
                 <cfdump var="#variables.parseStack#">
             <cfelseif char IS "'" AND NOT inString>
@@ -201,7 +199,9 @@
                 <cfset variables.parseStack[variables.parseCurrentStackTop].count = variables.parseCurrentSymbol>
                 <cfset symCount++>
                 <cfset variables.parseCurrentSymbol = "sym#symCount#">
-                <cfset variables.parseSymbols[variables.parseCurrentSymbol] = "">
+                <cfset variables.parseSymbols[variables.parseCurrentSymbol] = ArrayNew(1)>
+                <cfset variables.parseSymbols[variables.parseCurrentSymbol][1] = "">
+                <cfset variables.parseSymbols[variables.parseCurrentSymbol][2] = "STRING">
 				<cfset inString = true>
                 <cfdump var="#variables.parseSymbols#">
                 <cfdump var="#variables.parseStack#">
@@ -213,7 +213,7 @@
                 <cfset variables.symbolSymbol = variables.parseCurrentSymbol>
                 <cfset variables.parseCurrentSymbol = variables.parseStack[variables.parseCurrentStackTop].count>
                 <cfset variables.parseCurrentStackTop-->
-                <cfset variables.parseSymbols[variables.parseCurrentSymbol] &= " #symbolSymbol#">
+                <cfset variables.parseSymbols[variables.parseCurrentSymbol][1] &= " :#symbolSymbol#">
             <cfelseif char IS ")">
                 <!--- check the top of the stack --->
                 <cfif variables.parseStack[variables.parseCurrentStackTop].char IS NOT char>
@@ -222,7 +222,7 @@
                 <cfset variables.symbolSymbol = variables.parseCurrentSymbol>
                 <cfset variables.parseCurrentSymbol = variables.parseStack[variables.parseCurrentStackTop].count>
                 <cfset variables.parseCurrentStackTop-->
-                <cfset variables.parseSymbols[variables.parseCurrentSymbol] &= " #symbolSymbol#">
+                <cfset variables.parseSymbols[variables.parseCurrentSymbol][1] &= " :#symbolSymbol#">
             <cfelseif char IS "'" AND inString>
                 <!--- check the top of the stack --->
                 <cfif variables.parseStack[variables.parseCurrentStackTop].char IS NOT char>
@@ -231,13 +231,13 @@
                 <cfset variables.symbolSymbol = variables.parseCurrentSymbol>
                 <cfset variables.parseCurrentSymbol = variables.parseStack[variables.parseCurrentStackTop].count>
                 <cfset variables.parseCurrentStackTop-->
-                <cfset variables.parseSymbols[variables.parseCurrentSymbol] &= " #symbolSymbol#">
+                <cfset variables.parseSymbols[variables.parseCurrentSymbol][1] &= " :#symbolSymbol#">
 				<cfset inString = false>
             <cfelse>
-                <cfset variables.parseSymbols[variables.parseCurrentSymbol] &= char>
+                <cfset variables.parseSymbols[variables.parseCurrentSymbol][1] &= char>
 			</cfif>
 			
-			<cfoutput>#variables.parseSymbols[variables.parseCurrentSymbol]#</cfoutput>
+			<cfoutput>#variables.parseSymbols[variables.parseCurrentSymbol][1]#</cfoutput>
 		</cfloop>
             <cfcatch>
                 <cfdump var="#variables.parseSymbols#">

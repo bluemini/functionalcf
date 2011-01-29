@@ -1,7 +1,6 @@
 <cfcomponent extends="func" implements="IRunnable">
 
 	<cffunction name="init" output="true" hint="Allows you to define a function" returntype="any">
-        <cfargument name="name" default="defn" type="string">
         <cfargument name="contents" type="any" hint="accepts a list object of the function body..">
         <cfargument name="scope" default="this" type="any">
         
@@ -15,56 +14,57 @@
                     
         <cfset super.init("defn", arguments.contents, this)>
         
-	    <cfdump var="#variables.meta#" label="DEFN meta">
-	    <cfabort>
-	    
 	    <cfreturn this>
 	</cffunction>
     
     <cffunction name="evaluateTree">
-		<cfdump var="#variables.parseSymbols["sym1"]#">
-		<cfabort>
-        <cfset variables.parseSymbols["sym1"].run()>
+        <cfset var symbolLine = "">
+        <cfoutput>Evaluating the tree!<cfdump var="#parseSymbols#"></cfoutput>
+
+        <!--- a defn should have three parts to the opener: name, arguments, function body --->
+        <cfif NOT StructKeyExists(parseSymbols, "sym1")>
+            <cfthrow message="symbol table is empty or doesn't begin with 'SYM1'">
+        </cfif>
+        <cfset symbolLine = parseSymbols["SYM1"][1]>
+        
+        <cfif ListLen(symbolLine, " ") NEQ 3>
+            <cfthrow message="DEFN requires three parameters following the function: name, arguments[] and function body">
+        </cfif>
+        
+        <!--- establish the name of the defined function and create a UserFunc for it --->
+        <cfset fnName = ListGetAt(symbolLine, 1, " ")>
+        <cfset variables[fnName] = createObject("component", "UserFunc")>
+        <cfoutput>Function name = #fnName#<br></cfoutput>
+        
+        <!--- establigh the list of arguments --->
+        <cfset fnArgs = ListGetAt(symbolLine, 2, " ")>
+        <cfset content.args = ListToArray(fnArgs, " ")>
+        
+        <!--- establish the function body --->
+        <cfset fnBody = ListGetAt(symbolLine, 3, " ")>
+        <cfset content.body = CreateObject("component", "List").init(fnBody)>
+        
+        <!--- then init() the UserFunc --->
+        <cfset variables[fnName].init(content, this)>
+        <cfdump var="#variables[fnName]#" label="function...">
+        
+        <cfabort>
     </cffunction>
     
     <cffunction name="run">
-        <!--- <cfscript>
-            if (arrayLen(argData) LT 2) ;
-            
-            // parse the arguments and set up the new function definition
-            for (i=1; i LTE arrayLen(arrKeys); i++) {
-                argName = argData[i];
-                // the first argument is always the name of the new function
-                if (i EQ 1) {
-                    attr.name = argName;
-                    if (url.debug) writeOutput("DEFN: function name: <em>"&attr.name&"</em><br>");
-                    
-                // if the second term is a simple value (string) and not enclosed in square brackets, then this is the comment
-                } else if (i EQ 2 AND isSimpleValue(argName) AND 
-                    (NOT left(argName,1) IS "[" OR NOT right(argName, 1) IS "]")) {
-                    attr.comment = argName;
-                    if (url.debug) writeOutput("DEFN: function comment: <em>"&attr.comment&"</em><br>");
-                
-                // otherwise the second term will start the real definition
-                } else if (i GTE 2 AND i LTE 3 AND isSimpleValue(argName) AND 
-                    left(argName,1) IS "[" AND right(argName, 1) IS "]") {
-                    // argMap = createObject("component", "map").init(argName);
-                    attr.argmap = argName;
-                    if (url.debug) writeOutput("DEFN: argument map defined<br>");
-                    
-                // other terms that are arrays are the functional meat of the new function being defined
-                } else if (i GT 1 AND isArray(argName)) {
-                    attr.func[arityCount] = argName;
-                    arityCount ++;
-                }
-            }
-        </cfscript> --->
+		<cfset var main = variables.parseSymbols["sym1"]>
+        <cfset var func = createObject("component", "UserFunc")>
         
-        <!--- <cfif url.debug>--- defn attributes ---<br></cfif>
-        <cfset variables[attr.name] = createObject("component", "func").init(attr, this)>
-        <cfif url.debug>--- end defn attributes ---<br></cfif> --->
+        <cfif ListLen(main, " ") EQ 3>
+            <cfset functionName = ListGetAt(main, 1, " ")>
+            <cfset functionArgs = CreateObject("component", "list").init(ListGetAt(main, 2, " "))>
+            <cfset functionBody = ListGetAt(main, 3, " ")>
+            <cfset variables[functionName] = func.init(functionName, functionArgs, this)>
+        <cfelse>
+            <cfthrow message="Unable to define a function. DEFN must be called with three args; name, arguments and body">
+        </cfif>
         
-        <!--- return notice that the function was created --->
+        <cfreturn variables[functionName]>
     </cffunction>
     
 </cfcomponent>

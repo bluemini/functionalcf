@@ -17,6 +17,17 @@
 	    <cfreturn this>
 	</cffunction>
     
+	<!---
+        For defn, we need to produce a single function that can be called, but
+        which encapsulates the full definition enclosed in the source. The 'parseSymbols'
+		data, is produced by parsing the contents of the definition,  it is now worked
+		on to produce the full function.
+		
+		In general, defn takes three arguments:
+          1.  the name of the function being defined
+          2.  the argument aliases to use, referenced within the function definition..
+          3.  the function definition.
+	 --->
     <cffunction name="evaluateTree">
         <cfset var symbolLine = "">
         <cfoutput>Evaluating the tree!<cfdump var="#parseSymbols#"></cfoutput>
@@ -38,7 +49,17 @@
         
         <!--- establigh the list of arguments --->
         <cfset fnArgs = ListGetAt(symbolLine, 2, " ")>
-        <cfset content.args = ListToArray(fnArgs, " ")>
+        <cfif left(fnArgs, 4) IS ":sym">
+            <cfset keyName = Right(fnArgs, Len(fnArgs)-1)>
+            <cfif StructKeyExists(parseSymbols, keyName)>
+                <cfset sub = parseSymbols[keyName]>
+                <cfif sub[2] IS "ARRAY">
+                    <cfset content.args = ListToArray(sub[1], " ")>
+                </cfif>
+            </cfif>
+        <cfelse>
+            <cfset content.args = ListToArray(fnArgs, " ")>
+        </cfif>
         
         <!--- establish the function body --->
         <cfset fnBody = ListGetAt(symbolLine, 3, " ")>
@@ -47,12 +68,11 @@
         <!--- then init() the UserFunc --->
         <cfset variables[fnName].init(content, this)>
         <cfdump var="#variables[fnName]#" label="function...">
-        
-        <cfabort>
+		<cfdump var="#content#">
     </cffunction>
     
     <cffunction name="run">
-		<cfset var main = variables.parseSymbols["sym1"]>
+		<cfset var main = variables.parseSymbols["sym1"][1]>
         <cfset var func = createObject("component", "UserFunc")>
         
         <cfif ListLen(main, " ") EQ 3>

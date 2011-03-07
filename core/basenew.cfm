@@ -26,7 +26,7 @@
         
         <!--- run the list, which will perform the primary top level function --->
         <cfset out = baseList.run()>
-        <cfdump var="#out#">
+        <cfdump var="#out#" label="out">
         <cfset out.run()>
     
 		<cfif structKeyExists(arguments, "arg1")>

@@ -33,7 +33,7 @@
         <cfset variables.meta.symbolCount = 0>
 
 		<!--- if args were passed in, then store them locally in an array --->
-		<cfif structKeyExists(arguments.contents, "args")>
+		<cfif StructKeyExists(arguments.contents, "args")>
 			<cfset processArgs(arguments.contents.args)>
 		</cfif>
 		
@@ -49,7 +49,7 @@
 		<cfset var dynCounter = 1>
 		<cfset var newArgs = {}>
 		
-		<cfif request.debug>--- running <cfoutput>#variables.attr.name#</cfoutput> ---<br>
+		<cfif request.debug>--- running <!--- cfoutput>#variables.attr.name#</cfoutput ---> ---<br>
 		<cfdump var="#arguments#" label="FUNC RUN"></cfif>
 		<cfoutput>
 			

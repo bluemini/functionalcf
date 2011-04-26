@@ -7,7 +7,7 @@
 	
 	<cfset variables.argArray = arrayNew(1)>
 	<cfset variables.parseStack = ArrayNew(1)>
-	<cfset variables.parseSymbols = StructNew()>
+	<cfset variables.parseSymbols = ArrayNew(1)>
 	<cfset variables.parseCurrentSymbol = "">
 	<cfset variables.parseCurrentStackTop = 0>
 	
@@ -40,7 +40,6 @@
         <!--- parse the incoming string into a symbol tree --->
         <cfset parse(contents._getData(), variables.meta)>
         
-        <!--- now evaluate the symbol tree into an execution tree --->
         <cfreturn evaluateTree()>
 	</cffunction>
 	
@@ -152,7 +151,7 @@
 		<cfset var symCount = 1>
 		<cfset var inString = false>
 		
-		<cfset variables.parseCurrentSymbol = "sym1">
+		<cfset variables.parseCurrentSymbol = 1>
 		<cfset variables.parseSymbols[variables.parseCurrentSymbol] = ArrayNew(1)>
         <cfset variables.parseSymbols[variables.parseCurrentSymbol][1] = "">
         <cfset variables.parseSymbols[variables.parseCurrentSymbol][2] = "BASE">
@@ -172,7 +171,7 @@
 				<cfset variables.parseStack[variables.parseCurrentStackTop].char = ']'>
                 <cfset variables.parseStack[variables.parseCurrentStackTop].count = variables.parseCurrentSymbol>
 				<cfset symCount++>
-				<cfset variables.parseCurrentSymbol = "sym#symCount#">
+				<cfset variables.parseCurrentSymbol = symCount>
 				<cfset variables.parseSymbols[variables.parseCurrentSymbol] = ArrayNew(1)>
                 <cfset variables.parseSymbols[variables.parseCurrentSymbol][1] = "">
                 <cfset variables.parseSymbols[variables.parseCurrentSymbol][2] = "ARRAY">
@@ -185,7 +184,7 @@
                 <cfset variables.parseStack[variables.parseCurrentStackTop].char = ')'>
                 <cfset variables.parseStack[variables.parseCurrentStackTop].count = variables.parseCurrentSymbol>
                 <cfset symCount++>
-                <cfset variables.parseCurrentSymbol = "sym#symCount#">
+                <cfset variables.parseCurrentSymbol = symCount>
                 <cfset variables.parseSymbols[variables.parseCurrentSymbol] = ArrayNew(1)>
                 <cfset variables.parseSymbols[variables.parseCurrentSymbol][1] = "">
                 <cfset variables.parseSymbols[variables.parseCurrentSymbol][2] = "LIST">
@@ -198,7 +197,7 @@
                 <cfset variables.parseStack[variables.parseCurrentStackTop].char = "'">
                 <cfset variables.parseStack[variables.parseCurrentStackTop].count = variables.parseCurrentSymbol>
                 <cfset symCount++>
-                <cfset variables.parseCurrentSymbol = "sym#symCount#">
+                <cfset variables.parseCurrentSymbol = symCount>
                 <cfset variables.parseSymbols[variables.parseCurrentSymbol] = ArrayNew(1)>
                 <cfset variables.parseSymbols[variables.parseCurrentSymbol][1] = "">
                 <cfset variables.parseSymbols[variables.parseCurrentSymbol][2] = "STRING">

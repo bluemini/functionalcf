@@ -26,10 +26,18 @@
         
         <!--- run the list, which will perform the primary top level function --->
         <cfset out = baseList.run()>
-        <cfdump var="#out#" label="out">
-        <cfset out.run()>
+        
+        <cfif url.debug>
+            <cfdump var="#out#" label="out">
+        </cfif>
+        
+        <cfset result = out.run()>
+        
+        <cfif StructKeyExists(variables, "result")>
+            <cfoutput>#result#</cfoutput>
+        </cfif>
     
-		<cfif structKeyExists(arguments, "arg1")>
+		<!--- <cfif structKeyExists(arguments, "arg1")>
 			<cfset fn = arguments["arg1"]>
 		<cfelse>
 			<cfset fn = arguments[1]>
@@ -54,7 +62,7 @@
 		
 		<cfif url.debug>--- $ arguments ---<br>
 		<cfdump var="#structKeyArray(arguments)#">
-		--- end $ arguments ---<br></cfif>
+		--- end $ arguments ---<br></cfif> --->
 	</cfif>
 </cffunction>
 

@@ -33,24 +33,31 @@
         
         <!--- attempt to instantiate an object of type first param --->
         <cftry>
-            Creating instance of <cfoutput>#fnName#</cfoutput>
-            <cfset fn = createObject("component", fnName)><br>
-            <cfcatch> - failed (#fnName# is not a function)<br></cfcatch>
+            <cfif url.debug>Creating instance of <cfoutput>#fnName#</cfoutput><br></cfif>
+            <cfset fn = createObject("component", fnName)>
+            <cfcatch>
+                <cfif url.debug> - failed (#fnName# is not a function object)<br></cfif>
+                <cfrethrow>
+            </cfcatch>
         </cftry>
         
-        <!--- if we obtained a function or object, then we can run it --->
+        <!--- if we obtained a function or object, then we init() it, and return the new function object --->
         <cfif isObject(fn)>
             <cfif url.debug><cfoutput>--- #fnName# is an object, calling init("#rest().data#") ---<br></cfoutput></cfif>
-            <cfset resp = fn.init(rest()).run()>
+            <cfset resp = fn.init(rest())>
+            
         <cfelseif isCustomFunction(fn)>
             <cfif url.debug><cfoutput>--- called by Custom Function fn ---<br></cfoutput></cfif>
             <cfset resp = fn(argumentCollection=newArgs)>
+            
         <cfelseif isCustomFunction(fn)>
             <cfif url.debug><cfoutput>--- called by String var ---</cfoutput></cfif>
             <cfset tempFunc = variables[fn]>
             <cfset resp = tempFunc(newArgs)>
+            
         <cfelse>
             <cfset resp = print()>
+            
         </cfif>
         
 		<!--- <cfif structKeyExists(arguments, "arg1")>
@@ -71,8 +78,16 @@
         <cfreturn "(" & variables.data & ")">
     </cffunction>
     
+    <cffunction name="first">
+        <cfreturn ListGetAt(variables.data, 1, " ")>
+    </cffunction>
     <cffunction name="rest">
-        <cfreturn createObject("component", "list").init(listDeleteAt(variables.data, 1, " "))>
+        <cfset var rest = listDeleteAt(variables.data, 1, " ")>
+        <cfif Trim(rest) IS "">
+            <cfreturn CreateObject("component", "Nil")>
+        <cfelse>
+            <cfreturn createObject("component", "list").init(rest)>
+        </cfif>
     </cffunction>
     
 	<cffunction name="_getData"><cfreturn variables.data></cffunction>

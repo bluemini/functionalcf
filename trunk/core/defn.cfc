@@ -30,7 +30,15 @@
 	 --->
     <cffunction name="evaluateTree">
         <cfset var symbolLine = "">
-        <cfoutput>Evaluating the tree!<cfdump var="#parseSymbols#"></cfoutput>
+        <cfset var symbols = ArrayLen(StructKeyArray(parseSymbols))>
+        <cfset var parsedSymbols = StructNew()>
+        
+        <cfreturn>
+        
+        <cfif StructKeyExists(url, "debug")>
+            <cfoutput>Evaluating the tree!</cfoutput>
+            <cfdump var="#parseSymbols#">
+        </cfif>
 
         <!--- a defn should have three parts to the opener: name, arguments, function body --->
         <cfif NOT StructKeyExists(parseSymbols, "sym1")>
@@ -68,18 +76,38 @@
         <!--- then init() the UserFunc --->
         <cfset variables[fnName].init(content, this)>
         <cfdump var="#variables[fnName]#" label="function...">
-		<cfdump var="#content#">
+		<cfdump var="#content#" label="CONTENT (defn)">
+        <cfdump var="#variables[fnName].getContents()#" label="getContents() (defn)">
+        
+        <cfreturn variables[fnName]>
     </cffunction>
     
     <cffunction name="run">
 		<cfset var main = variables.parseSymbols["sym1"][1]>
         <cfset var func = createObject("component", "UserFunc")>
+        <cfset var ignore = ":sym1">
+        <cfset var functionBody = StructNew()>
+        <cfset var functionContents = StructNew()>
         
         <cfif ListLen(main, " ") EQ 3>
             <cfset functionName = ListGetAt(main, 1, " ")>
-            <cfset functionArgs = CreateObject("component", "list").init(ListGetAt(main, 2, " "))>
-            <cfset functionBody = ListGetAt(main, 3, " ")>
-            <cfset variables[functionName] = func.init(functionName, functionArgs, this)>
+            
+            <!--- the arguments should be referenced by the second term --->
+            <cfset sym = ListGetAt(main, 2, " ")>
+            <cfset ignore = ListAppend(ignore, sym)>
+            <cfset functionArgs = CreateObject("component", "list").init(variables.parseSymbols[Right(sym, Len(sym)-1)][1])>
+            
+            <!--- construct the body --->
+            <cfloop collection="#parseSymbols#" item="symbol">
+                <cfif NOT ListFind(ignore, ":#symbol#")>
+                    <cfset functionBody[symbol] = parseSymbols[symbol]>
+                </cfif>
+            </cfloop>
+            
+            <cfset functionContents.args = functionArgs>
+            <cfset functionContents.body = functionBody>
+            
+            <cfset variables[functionName] = func.init(functionContents, this)>
         <cfelse>
             <cfthrow message="Unable to define a function. DEFN must be called with three args; name, arguments and body">
         </cfif>

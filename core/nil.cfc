@@ -1,6 +1,7 @@
 <cfcomponent>
 	
 	<cfset variables.data = structNew()>
+    <cfset this.type = "NIL">
 
 	<!--- creates a map object, it expects a CF struct --->
 	<cffunction name="init">

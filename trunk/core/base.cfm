@@ -1,9 +1,6 @@
 <cfset this.name = "funcex">
 <cfset this.sessionManagement = true>
 <cfparam name="url.debug" default="false">
-<cfset request.debug = url.debug>
-
-<cfset request.coreFunctions = "defn lt if">
 
 <cffunction name="$" access="public" output="true">
     
@@ -18,11 +15,9 @@
 		<cfoutput>FunctionalCF - The argument to $() MUST be a string.</cfoutput>
 	<cfelse>
     
-        <cfset input = arguments[1]>
-        
         <!--- Since FunctionCF is drawing on the Lisp idea, where even the program code is a list,
         we need to create a list from the body text --->
-        <cfset baseList = createObject("component", "List").init(input)>
+        <cfset baseList = createObject("component", "List").init(arguments[1])>
         
         <!--- run the list, which will perform the primary top level function --->
         <cfset out = baseList.run(variables)>
@@ -74,33 +69,6 @@
 	</cfif>
 </cffunction>
 
-<cffunction name="C" access="public" output="true">
-	<cfif arrayLen(arguments) NEQ 1>
-		<cfthrow message="funcex requires only one parameters">
-	</cfif>
-	
-	<cfset parsedRE = REFind("(([A-Za-z0-9])*\w)", arguments[1], 1, true)>
-	<cfdump var="#parsedRE#">
-	<cfloop from="1" to="#arrayLen(parsedRE.pos)#" index="i">
-		<cfoutput>#mid(arguments[1], parsedRE.pos[i], parsedRE.len[i])#<br></cfoutput>
-	</cfloop>
-	<cfabort>
-	
-	<cfset fn = arguments[1]>
-	<cfset arrayDeleteAt(arguments, 1)>
-	<cfset newArgs = structCopy(arguments)>
-	--- callin fn ---<br>
-	<cfif isObject(fn)>
-		<cfset fn.run(argumentCollection=newArgs)>
-	<cfelseif isCustomFunction(fn)>
-		<cfset fn(argumentCollection=newArgs)>
-	</cfif>
-	
-	--- $ arguments ---
-	<cfdump var="#arguments#">
-	--- end $ arguments ---<br>
-</cffunction>
-
 <cffunction name="def" output="true">
 	<cfset var arrKeys = structKeyArray(arguments)>
 	<cfset var arrKey = 0>
@@ -150,68 +118,8 @@
 	<cfreturn "> user/#attr.name#">
 </cffunction>
 
-<cffunction name="kw">
-	<cfargument name="keywordValue" type="string">
-	<cfreturn createObject("component", "keyword").init(arguments.keywordValue)>
-</cffunction>
-
-<cffunction name="println" output="true">
-	<cfset var numberOfArgs = arrayLen(arguments)>
-	<cfset var out = "">
-	<cfset var argumentValue = "">
-	
-	<cfif url.debug><h3>PRINTLN:</h3></cfif>
-	
-	<cfif arrayLen(structKeyArray(arguments)) EQ 1
-		AND isArray(arguments[1])>
-		<cfset arg = arguments[1]>
-	</cfif>
-
-	<cfif url.debug>--- calling println ---<br>
-	<cfdump var="#arguments#" label="PRINTLN arguments"></cfif>
-	
-	<cfloop from="1" to="#numberOfArgs#" index="i">
-		<cfset argumentValue = arguments["arg#i#"]>
-		<cfif isSimpleValue(argumentValue)><cfset out &= argumentValue></cfif>
-	</cfloop>
-	
-	<cfreturn out>
-</cffunction>
-
-<cffunction name="add" output="false">
-	<cfset var arg = arguments>
-	<cfset var sum = 0>
-	
-	<cfif arrayLen(structKeyArray(arguments)) EQ 1
-		AND isArray(arguments[1])>
-		<cfset arg = arguments[1]>
-	</cfif>
-
-	<cfif url.debug>--- calling ADD ---<br>
-	<cfdump var="#arg#" label="+ args"></cfif>
-	<cfloop array="#arg#" index="i">
-		<cfif isNumeric(i)><cfset sum += i></cfif>
-	</cfloop>
-	<cfreturn sum>
-</cffunction>
-
-
-
-
 
 <cffunction name="onRequest" returntype="void">
 	<cfargument name="targetpage" type="any" required="true">
 	<cfinclude template="#arguments.targetpage#">
 </cffunction>
-
-<!---
-<cffunction name="func" access="public" hint="represents any new function">
-	--- func arguments ---
-	<cfdump var="#arguments#">
-	--- end func arguments ---<br>
-	<cfreturn this>
-</cffunction>
---->
-
-<cfset if = createObject("component", "functionalCF.core.func")>
-<cfset lGT = createObject("component", "functionalCF.core.func")>

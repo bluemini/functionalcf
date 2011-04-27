@@ -1,5 +1,5 @@
 <cfcomponent>
-	<cfinclude template="./core/basenew.cfm">
+	<cfinclude template="./core/base.cfm">
 	
 	<cffunction name="onRequestStart">
 		<cfargument name="targetPage" type="string" required="true">

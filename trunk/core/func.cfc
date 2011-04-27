@@ -1,4 +1,6 @@
 <cfcomponent>
+    
+    <cfset this.name = "undefined">
 	
 	<!---
 	func is an array of function definitions. If there are more than one, then
@@ -27,28 +29,29 @@
 		<cfargument name="scope">
         
 		<cfset variables.name = arguments.name>
+        <cfset variables.contents = arguments.contents>
 		<cfset variables.that = arguments.scope>
 		
         <cfset variables.meta.symbolTable = StructNew()>
         <cfset variables.meta.symbolCount = 0>
 
 		<!--- if args were passed in, then store them locally in an array --->
-		<cfif StructKeyExists(arguments.contents, "args")>
-			<cfset processArgs(arguments.contents.args)>
-		</cfif>
+		<!--- <cfset processArgs(arguments.contents)> --->
 		
         <!--- parse the incoming string into a symbol tree --->
         <cfset parse(contents._getData(), variables.meta)>
         
-        <cfreturn evaluateTree()>
 	</cffunction>
 	
 	<cffunction name="run">
 		<cfset var argMatch = arrayNew(1)>
 		<cfset var dynCounter = 1>
 		<cfset var newArgs = {}>
+        
+        HERE in func.run()
+        <cfabort>
 		
-		<cfif request.debug>--- running <!--- cfoutput>#variables.attr.name#</cfoutput ---> ---<br>
+		<cfif request.debug>--- running ---<br>
 		<cfdump var="#arguments#" label="FUNC RUN"></cfif>
 		<cfoutput>
 			
@@ -114,16 +117,30 @@
 		<cfset var tempArray = arrayNew(1)>
 		
 		<cfif isDynArg(arguments.argCollection)>
-			<cfset tempArray = listToArray(mid(argCollection,2,len(argCollection)-2))>
+            <cfthrow message="Error in func.cfc, checking for dynamic args, but not sure what to do if found!! dev needed here">
+            <!--- TODO: handle dynamic args, if that means anything --->
+			<cfset tempArray = listToArray(mid(argCollection, 2, len(argCollection)-2))>
 		</cfif>
+        
 		<cfset variables.argArray = tempArray>
 	</cffunction>
 	
+    <!--- ensure that the args are identifiers (ie not place holders) --->
 	<cffunction name="isDynArg">
 		<cfargument name="toCheck">
-		<cfif left(arguments.toCheck,1) IS "[" AND right(arguments.toCheck,1) IS "]">
-			<cfreturn true>
-		</cfif>
+        
+        <cftry>
+            <cfset var item = toCheck.first()>
+            <cfcatch><cfdump var="#toCheck#"></cfcatch>
+        </cftry>
+        <cfloop condition="item IS NOT ''">
+            <cfoutput>item: #item#<br></cfoutput>
+            <cfif Len(item) LTE "" OR Left(item, 1) IS ":">
+                <cfreturn false>
+            </cfif>
+            <cfset toCheck = toCheck.rest()>
+            <cfset item = toCheck.first()>
+        </cfloop>
 		<cfreturn false>
 	</cffunction>
 

@@ -39,12 +39,11 @@
         </cfif>
         
         <cfif NOT StructKeyExists(rest, "type") OR rest.type IS NOT "NIL">
-            <cfset compArg = rest.first()>
-            <cfset result = result.OR(compArg.compareTo(arg) GT 0)>
-            <cfdump var="#result#"><cfabort>
+            <cfset rest = rest.first()>
+            <cfset result = result.OR(rest.compareTo(arg) GT 0)>
         </cfif>
         
-        <cfreturn result>
+        <cfreturn result.val>
     </cffunction>
 
 </cfcomponent>

@@ -1,27 +1,31 @@
 <cfcomponent implements="ICompare">
     
-    <cfset variables.val = CreateObject("component", "Nil")>
+    <cfset this.val = CreateObject("component", "Nil")>
 
     <cffunction name="init">
-        <cfargument name="val" type="TBoolean">
-        <cfset variables.val = arguments.val>
+        <cfargument name="val" type="boolean">
+        <cfset this.val = arguments.val>
         <cfreturn this>
     </cffunction>
     
     <cffunction name="AND">
         <cfargument name="comp" type="TBoolean">
-        <cfif isBoolean(variables.val) AND variables.val AND comp.bool>
+        <cfif isBoolean(this.val) AND this.val AND comp.bool>
+            <cfset this.val = true>
             <cfreturn CreateObject("component", "TBoolean").init(true)>
         <cfelse>
+            <cfset this.val = false>
             <cfreturn CreateObject("component", "TBoolean").init(false)>
         </cfif>
     </cffunction>
     
     <cffunction name="OR">
-        <cfargument name="comp" type="TBoolean">
-        <cfif (isBoolean(variables.val) AND variables.val) OR comp.bool>
+        <cfargument name="comp" type="boolean">
+        <cfif (isBoolean(this.val) AND this.val) OR comp>
+            <cfset this.val = true>
             <cfreturn CreateObject("component", "TBoolean").init(true)>
         <cfelse>
+            <cfset this.val = false>
             <cfreturn CreateObject("component", "TBoolean").init(false)>
         </cfif>
     </cffunction>

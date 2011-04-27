@@ -45,12 +45,12 @@
         
         <!--- if we obtained a function or object, then we init() it, and return the new function object --->
         <cfif isObject(fn)>
-            <cfif url.debug><cfoutput>--- #fnName# is an object, calling init("#rest().data#") ---<br></cfoutput></cfif>
-            <cfset resp = fn.init(rest())>
+            <cfif url.debug><cfoutput>--- LIST: #fnName# is an object, calling init("#rest().data#") ---<br></cfoutput></cfif>
+            <cfset resp = fn.init(rest()).run()>
             
-        <cfelseif StructKeyExists(context, fnName) AND isCustomFunction(context[fnName])>
-            <cfif url.debug><cfoutput>--- called by Custom Function fn ---<br></cfoutput></cfif>
-            <cfset resp = fn(argumentCollection=newArgs)>
+        <cfelseif StructKeyExists(context, fnName) AND isObject(context[fnName])>
+            <cfif url.debug><cfoutput>--- LIST: creating custom function as UserFunc Object #fnName# ---<br></cfoutput></cfif>
+            <cfset resp = context[fnName].init(rest(), context).run()>
             
         <cfelseif isCustomFunction(fn)>
             <cfif url.debug><cfoutput>--- called by String var ---</cfoutput></cfif>
@@ -59,7 +59,9 @@
             
         <cfelse>
             <cfdump var="#context#">
+            <cfoutput>#fnName# #StructKeyExists(context, fnName)#</cfoutput>
             <cfset resp = print()>
+            <cfabort>
             
         </cfif>
         
@@ -82,12 +84,16 @@
     </cffunction>
     
     <cffunction name="first">
-        <cfreturn ListGetAt(variables.data, 1, " ")>
+        <cfset var resp = "">
+        <cfif Len(Trim(variables.data)) GT 0>
+            <cfset resp = ListGetAt(variables.data, 1, " ")>
+        </cfif>
+        <cfreturn resp>
     </cffunction>
     <cffunction name="rest">
         <cfset var rest = listDeleteAt(variables.data, 1, " ")>
         <cfif Trim(rest) IS "">
-            <cfreturn CreateObject("component", "Nil")>
+            <cfreturn CreateObject("component", "List").init("")>
         <cfelse>
             <cfreturn createObject("component", "list").init(rest)>
         </cfif>

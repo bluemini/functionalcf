@@ -4,8 +4,16 @@
 <h3>Calling the function</h3>
 <cfset $("isNegative -2")>
 
+
+<h3>Calling a CF native function</h3>
+<p>$(". Len 'this is my string'")</p>
+<cfset $(". Len 'this is my string'")>
+
+<cfabort>
+
+
 <h3>Defining the function</h3>
-<cfset $("defn myfunc [num denom] (ifff (lt num denom) 'less than one' 'greater than or equal to one')")>
+<cfset $("defn myfunc [num denom] (if (lt num denom) 'less than one' 'greater than or equal to one')")>
 
 <h3>Calling the function</h3>
 <cfset $("myfunc 1 2")>

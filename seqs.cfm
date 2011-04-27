@@ -1,8 +1,8 @@
 <h3>Defining a basic function</h3>
-<cfset $("defn myfunc [num] (lt num 0)")>
+<cfset $("defn isNegative [num] (lt num 0)")>
 
 <h3>Calling the function</h3>
-<cfset $("myfunc -2")>
+<cfset $("isNegative -2")>
 
 <h3>Defining the function</h3>
 <cfset $("defn myfunc [num denom] (ifff (lt num denom) 'less than one' 'greater than or equal to one')")>

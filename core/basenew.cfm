@@ -25,18 +25,26 @@
         <cfset baseList = createObject("component", "List").init(input)>
         
         <!--- run the list, which will perform the primary top level function --->
-        <cfset variables = baseList.run(variables)>
-        
-        <cfdump var="#variables#">
+        <cfset out = baseList.run(variables)>
         
         <cfif url.debug>
-            <cfdump var="#out#" label="out">
+            <cfdump var="#out#" label="out (base)">
         </cfif>
         
-        <cfset result = out.run()>
+        <!--- if the returned value is a UserFunc object and has a name, then add to variables --->
+        <cfif isObject(out)>
+            <cfset md = getMetaData(out)>
+            <cfif Len(md.name) GTE 8 AND Right(md.name, 8) IS "UserFunc">
+                <cftry>
+                    <cfset variables[out.name] = out>
+                    <cfoutput>> fcf/#out.name#</cfoutput>
+                    <cfcatch><cfrethrow></cfcatch>
+                </cftry>
+            </cfif>
+        <cfelseif isSimpleValue(out)>
+            <cfoutput>> #out#</cfoutput>
+        </cfif>
         
-        <cftry><cfoutput>#result#</cfoutput><cfcatch></cfcatch></cftry>
-    
 		<!--- <cfif structKeyExists(arguments, "arg1")>
 			<cfset fn = arguments["arg1"]>
 		<cfelse>

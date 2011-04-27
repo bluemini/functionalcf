@@ -12,7 +12,7 @@
 	    <cfset attr.func = arrayNew(1)>
 	    <cfset attr.comment = "">
                     
-        <cfset super.init("defn", arguments.contents, this)>
+        <cfset super.init("defn", arguments.contents, arguments.scope)>
         
 	    <cfreturn this>
 	</cffunction>
@@ -35,7 +35,7 @@
         
         <cfreturn>
         
-        <cfif StructKeyExists(url, "debug")>
+        <cfif url.debug>
             <cfoutput>Evaluating the tree!</cfoutput>
             <cfdump var="#parseSymbols#">
         </cfif>
@@ -85,34 +85,31 @@
     <cffunction name="run">
 		<cfset var main = variables.parseSymbols[1][1]>
         <cfset var func = createObject("component", "UserFunc")>
-        <cfset var ignore = "1">
         <cfset var functionBody = ArrayNew(1)>
         <cfset var functionContents = StructNew()>
         
-        <cfif ListLen(main, " ") EQ 3>
+        <cfif ListLen(main, " ") GTE 3>
             <cfset functionName = ListGetAt(main, 1, " ")>
             
             <!--- the arguments should be referenced by the second term --->
-            <cfset sym = ListGetAt(main, 2, " ")>
-            <cfset ignore = ListAppend(ignore, sym)>
-            <cfset functionArgs = CreateObject("component", "list").init(variables.parseSymbols[Right(sym, Len(sym)-1)][1])>
+            <cfset functionArgs = CreateObject("component", "list").init(variables.parseSymbols[2][1])>
             
             <!--- construct the body --->
-            <cfloop from="1" to="#ArrayLen(parseSymbols)#" index="symbol">
-                <cfif NOT ListFind(ignore, symbol)>
-                    <cfset ArrayAppend(functionBody, parseSymbols[symbol][1])>
-                </cfif>
+            <cfloop from="3" to="#ArrayLen(parseSymbols)#" index="symbol">
+                <cfset ArrayAppend(functionBody, parseSymbols[symbol][1])>
             </cfloop>
             
             <cfset functionContents.args = functionArgs>
             <cfset functionContents.body = functionBody>
             
-            <cfset variables[functionName] = func.init(functionContents, this)>
+            <cfset func.name = functionName>
+            <cfset func.setup(functionContents, this)>
+            
         <cfelse>
             <cfthrow message="Unable to define a function. DEFN must be called with three args; name, arguments and body">
         </cfif>
         
-        <cfreturn variables[functionName]>
+        <cfreturn func>
     </cffunction>
     
 </cfcomponent>

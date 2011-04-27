@@ -28,6 +28,8 @@
     <!--- when you run a list, if the first item is a function, then we call that function with the reamining
     arguments. Otherwise, we return it as a list. --->
 	<cffunction name="run">
+        <cfargument name="context" required="false" default="#this#">
+        
 		<cfset var fnName = ListGetAt(variables.data, 1, " ")>
         <cfset var fn = {}>
         
@@ -37,7 +39,7 @@
             <cfset fn = createObject("component", fnName)>
             <cfcatch>
                 <cfif url.debug> - failed (#fnName# is not a function object)<br></cfif>
-                <cfrethrow>
+                <cfif Left(cfcatch.message, 39) IS NOT "Could not find the ColdFusion component"><cfdump var="#cfcatch.message#"><cfrethrow></cfif>
             </cfcatch>
         </cftry>
         
@@ -46,7 +48,7 @@
             <cfif url.debug><cfoutput>--- #fnName# is an object, calling init("#rest().data#") ---<br></cfoutput></cfif>
             <cfset resp = fn.init(rest())>
             
-        <cfelseif isCustomFunction(fn)>
+        <cfelseif StructKeyExists(context, fnName) AND isCustomFunction(context[fnName])>
             <cfif url.debug><cfoutput>--- called by Custom Function fn ---<br></cfoutput></cfif>
             <cfset resp = fn(argumentCollection=newArgs)>
             
@@ -56,6 +58,7 @@
             <cfset resp = tempFunc(newArgs)>
             
         <cfelse>
+            <cfdump var="#context#">
             <cfset resp = print()>
             
         </cfif>

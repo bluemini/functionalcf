@@ -30,7 +30,7 @@
 	 --->
     <cffunction name="evaluateTree">
         <cfset var symbolLine = "">
-        <cfset var symbols = ArrayLen(StructKeyArray(parseSymbols))>
+        <cfset var symbols = ArrayLen(parseSymbols)>
         <cfset var parsedSymbols = StructNew()>
         
         <cfreturn>
@@ -83,10 +83,10 @@
     </cffunction>
     
     <cffunction name="run">
-		<cfset var main = variables.parseSymbols["sym1"][1]>
+		<cfset var main = variables.parseSymbols[1][1]>
         <cfset var func = createObject("component", "UserFunc")>
-        <cfset var ignore = ":sym1">
-        <cfset var functionBody = StructNew()>
+        <cfset var ignore = "1">
+        <cfset var functionBody = ArrayNew(1)>
         <cfset var functionContents = StructNew()>
         
         <cfif ListLen(main, " ") EQ 3>
@@ -98,9 +98,9 @@
             <cfset functionArgs = CreateObject("component", "list").init(variables.parseSymbols[Right(sym, Len(sym)-1)][1])>
             
             <!--- construct the body --->
-            <cfloop collection="#parseSymbols#" item="symbol">
-                <cfif NOT ListFind(ignore, ":#symbol#")>
-                    <cfset functionBody[symbol] = parseSymbols[symbol]>
+            <cfloop from="1" to="#ArrayLen(parseSymbols)#" index="symbol">
+                <cfif NOT ListFind(ignore, symbol)>
+                    <cfset ArrayAppend(functionBody, parseSymbols[symbol][1])>
                 </cfif>
             </cfloop>
             

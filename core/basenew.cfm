@@ -25,7 +25,9 @@
         <cfset baseList = createObject("component", "List").init(input)>
         
         <!--- run the list, which will perform the primary top level function --->
-        <cfset out = baseList.run()>
+        <cfset variables = baseList.run(variables)>
+        
+        <cfdump var="#variables#">
         
         <cfif url.debug>
             <cfdump var="#out#" label="out">
@@ -33,9 +35,7 @@
         
         <cfset result = out.run()>
         
-        <cfif StructKeyExists(variables, "result")>
-            <cfoutput>#result#</cfoutput>
-        </cfif>
+        <cftry><cfoutput>#result#</cfoutput><cfcatch></cfcatch></cftry>
     
 		<!--- <cfif structKeyExists(arguments, "arg1")>
 			<cfset fn = arguments["arg1"]>

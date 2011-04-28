@@ -6,7 +6,7 @@
     
     <cfif url.debug>
 		<h3>$:</h3>
-		<cfdump var="#arguments#" label="$ arguments">
+		<cfdump var="#arguments#" label="arguments (base/$)">
 	</cfif>
 	
 	<cfset resp = "">
@@ -37,7 +37,7 @@
                 </cftry>
             </cfif>
         <cfelseif isSimpleValue(out)>
-            <cfoutput>> #out#</cfoutput>
+            <cfoutput>> #out#<br></cfoutput>
         </cfif>
         
 		<!--- <cfif structKeyExists(arguments, "arg1")>

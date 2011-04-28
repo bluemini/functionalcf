@@ -8,7 +8,7 @@
 	    <cfset var arrKey = 0>
 	    <cfset var attr = {}>
 	    <cfset var arityCount = 1>
-        <cfset var argData = ListToArray(contents._getData(), " ")>
+        <cfset var argData = contents._getData()>
 	    <cfset attr.func = arrayNew(1)>
 	    <cfset attr.comment = "">
                     
@@ -83,21 +83,19 @@
     </cffunction>
     
     <cffunction name="run">
-		<cfset var main = variables.parseSymbols[1][1]>
+		<cfset var main = variables.contents>
         <cfset var func = createObject("component", "UserFunc")>
         <cfset var functionBody = ArrayNew(1)>
         <cfset var functionContents = StructNew()>
         
-        <cfif ListLen(main, " ") GTE 3>
-            <cfset functionName = ListGetAt(main, 1, " ")>
+        <cfif main.length() GTE 3>
+            <cfset functionName = main.first().data>
             
             <!--- the arguments should be referenced by the second term --->
-            <cfset functionArgs = CreateObject("component", "list").init(variables.parseSymbols[2][1])>
+            <cfset functionArgs = main.rest().first()>
             
             <!--- construct the body --->
-            <cfloop from="3" to="#ArrayLen(parseSymbols)#" index="symbol">
-                <cfset ArrayAppend(functionBody, parseSymbols[symbol][1])>
-            </cfloop>
+            <cfset functionBody = main.rest().rest().first()>
             
             <cfset functionContents.args = functionArgs>
             <cfset functionContents.body = functionBody>

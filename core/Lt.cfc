@@ -7,13 +7,10 @@
         <cfset super.init("Lt", arguments.contents, this)>
         
         <!--- ensure that there are at least two entries --->
-        <cfset parseLen = ArrayLen(variables.parseSymbols)>
-        <cfif parseLen NEQ 1>
-            <cfthrow message="LT requires a single argument (master [first compare [second compare]])">
+        <cfif contents.length LT 2>
+            <cfthrow message="LT requires at least one argument (master [first compare [second compare]])">
         </cfif>
         
-        <cfset variables.expression = CreateObject("component", "List").init(variables.parseSymbols[1][1])>
-
         <cfreturn this>
     </cffunction>
     
@@ -22,11 +19,11 @@
     
     <cffunction name="run">
         <!--- get the response from running the first argument --->
-        <cfset var arg = variables.expression.first()>
-        <cfset var rest = variables.expression.rest()>
+        <cfset var arg = variables.contents.first().data>
+        <cfset var rest = variables.contents.rest()>
         <cfset var mainArg = "">
         <cfset var compArg = "">
-        <cfset var result = CreateObject("component", "TBoolean").init(false)>
+        <cfset var result = true>
         
         <cfif isNumeric(arg)>
             <cfset mainArg = CreateObject("component", "Number").init(arg)>
@@ -38,12 +35,15 @@
             <cfset mainArg = arg>
         </cfif>
         
-        <cfif NOT StructKeyExists(rest, "type") OR rest.type IS NOT "NIL">
-            <cfset rest = rest.first()>
-            <cfset result = result.OR(rest.compareTo(arg) GT 0)>
-        </cfif>
+        <!--- get each element, compare --->
+        <cfloop condition="result AND rest.length() GT 0">
+            <cfset compArg = rest.first().data>
+            <cfset result = result AND (arg LT compArg)>
+            <cfset arg = compArg>
+            <cfset rest = rest.rest()>
+        </cfloop>
         
-        <cfreturn result.val>
+        <cfreturn result>
     </cffunction>
 
 </cfcomponent>

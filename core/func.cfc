@@ -38,8 +38,9 @@
 		<!--- if args were passed in, then store them locally in an array --->
 		<!--- <cfset processArgs(arguments.contents)> --->
 		
-        <!--- parse the incoming string into a symbol tree --->
+        <!--- parse the incoming string into a symbol tree
         <cfset parse(contents._getData(), variables.meta)>
+         --->
         
 	</cffunction>
 	
@@ -150,10 +151,6 @@
 			<cfreturn mid(toCheck, 1, len(toCheck)-2)>
 		</cfif>
 		<cfreturn false>
-	</cffunction>
-	
-	<cffunction name="tostring">
-		<cfreturn variables.attr.toString()>
 	</cffunction>
 	
 	<cffunction name="parse" output="false">

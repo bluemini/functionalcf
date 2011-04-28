@@ -1,7 +1,10 @@
 <cfcomponent implements="IIterable">
 	
 	<cfset variables.data = structNew()>
-
+    <cfset variables.dataFinalized = false>
+    <cfset variables.dataBuild = "">
+    <cfset variables.dataCore = ArrayNew(1)>
+    
 	<!--- creates a map object, it expects a CF struct --->
 	<cffunction name="init">
 		<cfargument name="datastruct">
@@ -36,12 +39,56 @@
 	
 	<cffunction name="getData"><cfreturn variables.data></cffunction>
 	
+    <!--- takes a char at a time and fills its internal array --->
+    <cffunction name="parseInc">
+        <cfargument name="char">
+        
+        <cfset var finished = false>
+        <cfset var result = false>
+        
+        <cfif variables.dataFinalized><cfthrow message="list is immutable and cannot be modified"></cfif>
+        
+        <cfif char IS "(">
+            CREATE LIST<br>
+            <cfset variables.dataType = CreateObject("component", "List")>
+        <cfelseif char IS "[">
+            CREATE MAP<br>
+            <cfset variables.dataType = CreateObject("component", "Map")>
+        <cfelseif char IS "{">
+            CREATE SET<br>
+            <cfset variables.dataType = CreateObject("component", "Set")>
+        <cfelseif char IS "'">
+            CREATE STRING<br>
+            <cfset variables.dataType = CreateObject("component", "String")>
+        <cfelseif char IS NOT "]">
+            <cfif NOT StructKeyExists(variables, "dataType")>
+                <cfset variables.dataType = CreateObject("component", "Token")>
+            </cfif>
+            <cfset finished = variables.dataType.parseInc(char)>
+        <cfelseif char IS "]">
+            <cfset result = true>
+            <cfset finished = true> <!--- force the flushing of the last object to the dataCore --->
+        </cfif>
+        
+        <!--- if the data type has finished, then we stash current dataType --->
+        <cfif finished>
+            <cfset ArrayAppend(variables.dataCore, variables.dataType)>
+            <cfset StructDelete(variables, "dataType")>
+        </cfif>
+        
+        <cfreturn result>
+    </cffunction>
+    
 	<cffunction name="onMissingMethod" access="public" returntype="any">
 		<cfargument name="methodName" required="true">
 		<cfset var searchForKey = structFind(variables.data, arguments.methodName)>
 		<cfdump var="#searchForKey#"><cfabort>
 	</cffunction>
 
+    <cffunction name="getType">
+        <cfreturn "Map">
+    </cffunction>
+    
     <cffunction name="getNext" returntype="any">
 	</cffunction>
 

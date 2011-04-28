@@ -23,11 +23,10 @@
         <cfargument name="comp" type="boolean">
         <cfif (isBoolean(this.val) AND this.val) OR comp>
             <cfset this.val = true>
-            <cfreturn CreateObject("component", "TBoolean").init(true)>
         <cfelse>
             <cfset this.val = false>
-            <cfreturn CreateObject("component", "TBoolean").init(false)>
         </cfif>
+        <cfreturn CreateObject("component", "TBoolean").init(this.val)>
     </cffunction>
     
     <cffunction name="equals" returntype="TBoolean">

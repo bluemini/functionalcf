@@ -3,6 +3,8 @@
     <cffunction name="run">
         <cfargument name="args">
         
+        <cfdump var="#args#"><cfabort>
+        
         <!--- args is a List where the first arg should be the CF function name --->
         <cfset var f = args.first()>
         

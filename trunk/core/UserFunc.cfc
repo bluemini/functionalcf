@@ -31,9 +31,11 @@
         <!--- loop over the body of the function, if any arg is referenced by name, then replace it's 
         reference with the appropriate value from the argMap. If a nested function is found (:x) then
         put the current function on the stack and resolve the nested function first --->
-        <cfset lineBody = variables.functionDetail.body[1]>
-        <cfset lineBody = ListSetAt(lineBody, ListFind(lineBody, "num", " "), variables.contents.first(), " ")>
-        <cfset resp = CreateObject("component", "list").init(lineBody).run()>
+        <cfset lineBody = variables.functionDetail.body.first()>
+        
+        <cfdump var="#variables.functionDetail.body._getData()#" label="function body array (UserFunc/run)">
+        
+        <cfset resp = lineBody.run()>
         
         <cfreturn resp>
     </cffunction>

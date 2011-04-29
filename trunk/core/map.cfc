@@ -37,7 +37,13 @@
 		</cfif>
 	</cffunction>
 	
-	<cffunction name="getData"><cfreturn variables.data></cffunction>
+	<cffunction name="_getData">
+        <cfreturn variables.dataCore>
+    </cffunction>
+    
+    <cffunction name="first">
+        <cfreturn variables.dataCore[1]>
+    </cffunction>
 	
     <!--- takes a char at a time and fills its internal array --->
     <cffunction name="parseInc">
@@ -79,12 +85,6 @@
         <cfreturn result>
     </cffunction>
     
-	<cffunction name="onMissingMethod" access="public" returntype="any">
-		<cfargument name="methodName" required="true">
-		<cfset var searchForKey = structFind(variables.data, arguments.methodName)>
-		<cfdump var="#searchForKey#"><cfabort>
-	</cffunction>
-
     <cffunction name="getType">
         <cfreturn "Map">
     </cffunction>

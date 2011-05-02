@@ -88,7 +88,7 @@
         <!--- if we obtained a function or object, then we init() it, and return the new function object --->
         <cfif isObject(fn)>
             <cfif url.debug><cfoutput>--- LIST: #fnName# is an object, calling init("#rest().toString()#") ---<br></cfoutput></cfif>
-            <cfset resp = fn.init(rest()).run(arguments.bindMap)>
+            <cfset resp = fn.init(rest(), context).run(arguments.bindMap)>
             
         <cfelseif StructKeyExists(context, fnName) AND isObject(context[fnName])>
             <cfif url.debug><cfoutput>--- LIST: creating custom function as UserFunc Object #fnName# ---<br></cfoutput></cfif>

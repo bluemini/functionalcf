@@ -19,6 +19,7 @@
         
         <!--- we need to associate the arg values provided in contents, with those defined in setup --->
         <cfset variables.argMap = StructNew()>
+        <!--- TODO: replace this iteration with a seq, once the codes written! --->
         <cfset arg1 = variables.functionDetail.args.first().data>
         <cfset variables.argMap[arg1] = variables.contents.first().data>
         

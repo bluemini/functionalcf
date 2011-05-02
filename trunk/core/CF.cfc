@@ -47,4 +47,24 @@
         <cfreturn length>
     </cffunction>
 
+    <cffunction name="writeoutput">
+        <cfargument name="args">
+        
+        <cfset var length = 0>
+        <cfset var item = "">
+        
+        <cftry>
+            <cfloop condition="args.length() GT 0">
+                <cfset item = args.first()>
+                <cfif item.getType() IS "String">
+                    <cfset length += len(item.data)>
+                </cfif>
+                <cfset args = args.rest()>
+            </cfloop>
+            <cfcatch><cfdump var="#args#"><cfrethrow></cfcatch>
+        </cftry>
+        
+        <cfreturn length>
+    </cffunction>
+
 </cfcomponent>

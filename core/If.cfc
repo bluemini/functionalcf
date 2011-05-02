@@ -27,8 +27,10 @@
     </cffunction>
     
     <cffunction name="run">
+        <cfargument name="bindMap" type="struct" required="true">
+        
         <!--- get the response from running the first argument --->
-        <cfset var check = variables.expression.run()>
+        <cfset var check = variables.expression.run(arguments.bindMap)>
         
         <cfif check>
             <cfreturn variables.args.first().run()>

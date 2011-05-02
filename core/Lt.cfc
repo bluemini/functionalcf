@@ -50,6 +50,7 @@
         <cfloop condition="result AND rest.length() GT 0">
             
             <!--- get the value from the argument list, binding as appropriate --->
+            <!--- TODO: replace this iteration with a seq --->
             <cfif StructKeyExists(arg, "getType") AND arg.getType() IS "token">
                 <cfset mainArg = arg.data>
                 <cfif isNumeric(mainArg)>

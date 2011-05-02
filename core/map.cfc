@@ -1,37 +1,35 @@
-<cfcomponent implements="IIterable">
+<cfcomponent extends="func"  implements="IIterable,IRunnable">
 	
-	<cfset variables.data = structNew()>
+	<cfset variables.data = "">
     <cfset variables.dataFinalized = false>
     <cfset variables.dataBuild = "">
     <cfset variables.dataCore = ArrayNew(1)>
     
 	<!--- creates a map object, it expects a CF struct --->
-	<cffunction name="init">
-		<cfargument name="datastruct">
-		
-		<!--- check that the incoming data is a struct --->
-		<cfif NOT isArray(arguments.datastruct)>
-			<cfthrow message="Unable to define a map given the data provided">
-		<cfelseif arrayLen(arguments.datastruct) mod 2 NEQ 0>
-			<cfthrow message="Uneven number of attributes in the map initialisation string">
-		<cfelse>
-			<cfloop from="1" to="#arrayLen(arguments.datastruct)#" index="i" step="2">
-				<cfset hashcode = hash(arguments.datastruct[i].tostring())>
-                <cfset variables.data[hashcode] = structNew()>
-				<cfset variables.data[hashcode].key = arguments.datastruct[i]>
-				<cfset variables.data[hashcode].data = arguments.datastruct[i+1]>
-			</cfloop>
-		</cfif>
+	<cffunction name="init" returntype="any" output="true">
+        <cfargument name="contents" type="any" hint="accepts a list object of the function body..">
+        <cfargument name="scope" default="this" type="any">
+        
+        <cfset super.init("defn", arguments.contents, arguments.scope)>
+        
+        <cfreturn this>
 	</cffunction>
 	
 	<cffunction name="run">
-		<cfset var hashcode = "">
-		<cfif structKeyExists(arguments, "arg1")>
-			<cfset hashcode = hash(arguments["arg1"].tostring())>
-		</cfif>
+        <cfargument name="bindMap" type="struct" required="true">
+        
+        <cfif NOT isStruct(variables.data)>
+            <cfset variables.data = StructNew()>
+            <cfset mapLen = ArrayLen(variables.dataCore)>
+            <cfif mapLen MOD 2 GT 0><cfthrow message="Maps must have a factor of 2 keys"></cfif>
+            <cfloop from="1" to="#mapLen#" index="i" step="2">
+                <cfset variables.data[variables.dataCore[i].data] = variables.dataCore[i+1].data>
+            </cfloop>
+        </cfif>
+        
 		<!--- try and locate the key and return the value --->
-		<cfif structKeyExists(variables.data, hashcode)>
-			<cfreturn variables.data[hashcode].data>
+		<cfif StructKeyExists(variables.data, variables.contents.first().data)>
+			<cfreturn variables.data[variables.contents.first().data]>
 		<cfelse>
 			<cfreturn "nil">
 		</cfif>
@@ -40,9 +38,22 @@
 	<cffunction name="_getData">
         <cfreturn variables.dataCore>
     </cffunction>
+    <cffunction name="setData">
+        <cfargument name="data" type="array">
+        <cfset variables.dataCore = data>
+        <cfreturn this>
+    </cffunction>
+    <cffunction name="length">
+        <cfreturn ArrayLen(variables.dataCore)>
+    </cffunction>
     
     <cffunction name="first">
         <cfreturn variables.dataCore[1]>
+    </cffunction>
+    <cffunction name="rest">
+        <cfset var resp = Duplicate(variables.dataCore)>
+        <cfset ArrayDeleteAt(resp, 1)>
+        <cfreturn CreateObject("component", "Map").setData(resp)>
     </cffunction>
 	
     <!--- takes a char at a time and fills its internal array --->
@@ -54,26 +65,19 @@
         
         <cfif variables.dataFinalized><cfthrow message="list is immutable and cannot be modified"></cfif>
         
-        <cfif char IS "(">
-            CREATE LIST<br>
+        <cfif StructKeyExists(variables, "dataType")>
+            <cfset finished = variables.dataType.parseInc(char)>
+        <cfelseif char IS "(">
             <cfset variables.dataType = CreateObject("component", "List")>
         <cfelseif char IS "[">
-            CREATE MAP<br>
             <cfset variables.dataType = CreateObject("component", "Map")>
         <cfelseif char IS "{">
-            CREATE SET<br>
             <cfset variables.dataType = CreateObject("component", "Set")>
         <cfelseif char IS "'">
-            CREATE STRING<br>
             <cfset variables.dataType = CreateObject("component", "String")>
-        <cfelseif char IS NOT "]">
-            <cfif NOT StructKeyExists(variables, "dataType")>
-                <cfset variables.dataType = CreateObject("component", "Token")>
-            </cfif>
+        <cfelseif NOT ListFind(" ,[,],(,),{,}", char)>
+            <cfset variables.dataType = CreateObject("component", "Token")>
             <cfset finished = variables.dataType.parseInc(char)>
-        <cfelseif char IS "]">
-            <cfset result = true>
-            <cfset finished = true> <!--- force the flushing of the last object to the dataCore --->
         </cfif>
         
         <!--- if the data type has finished, then we stash current dataType --->
@@ -82,6 +86,12 @@
             <cfset StructDelete(variables, "dataType")>
         </cfif>
         
+        <!--- when a map self closes, it doesn't want an enclosing list to reuse the closing ) char,
+            so it returns 2, asking the enclosing list to ignore the current value --->
+        <cfif char IS "]" AND finished NEQ 2>
+            <cfset result = 2>
+        </cfif>
+
         <cfreturn result>
     </cffunction>
     

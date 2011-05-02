@@ -11,3 +11,8 @@
 <pre>$("if (lt 2 3) 'hello' 'goodbye'")</pre>
 <cfset $("if (lt 2 3) 'hello' 'goodbye'")>
 
+<!--- demonstrates the basics of an if --->
+<h3>Compounding some functions..</h3>
+<pre>$("if (lt 4 3) 'hello' 'goodbye'")</pre>
+<cfset $("if (lt 4 3) 'hello' 'goodbye'")>
+

@@ -7,10 +7,8 @@
 
 <body>
 <!--- <cfset $(defn, "hello", "Says hello to whomever you pass it..", "[name]", [println, "Hello, ", "name"])> --->
-<h3>Calling $(println, "hello", "bob")</h3>
-<cfscript>
-	$(println, "hello, ", "bob");
-</cfscript>
+<h3>Calling $("str 'hello' 'bob'")</h3>
+<cfset $("str 'hello ' 'bob'")>
 
 <!---
 for this try, 
@@ -20,11 +18,11 @@ for this try,
 	"[name]"		the arguments to pass to the function and map into the function definition
 	[println..]		an description of the function. To avoid it being evaluated, it is an implicit array
 --->
-<h3>Calling $(defn, "myhellofunc", "Says hello", "[name]", [println, "I'd like to say hi to...", "[name]"])</h3>
-<cfset $(defn, "myhellofunc", "Says hello", "[name]", [println, "I'd like to say hi to...", "[name]"])>
+<h3>Calling $("defn 'myhellofunc' [name] (str 'Id like to say hi to...' name))</h3>
+<cfset $("defn 'myhellofunc' [name] (str 'Id like to say hi to...' name)")>
 
-<h3>Calling $(myhellofunc, "John")</h3>
-<cfset $(myhellofunc, "John")>
+<h3>Calling $("myhellofunc 'John'")</h3>
+<cfset $("myhellofunc 'John'")>
 
 <!---
 <cfset $(defn, "double", "doubles whatever you give it", "[& val]", ["+", "[val]", "[val]"])>

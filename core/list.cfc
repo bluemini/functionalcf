@@ -101,8 +101,8 @@
             <cfset resp = fn.init(rest(), context).run(arguments.bindMap)>
             
         <cfelse>
-            <cfdump var="#context#" label="context (list/run) - default action">
-            <cfoutput>function name:#fnName# not a function<br>found function in context: #StructKeyExists(context, fnName)#</cfoutput>
+            <cfdump var="#context#">
+            <cfthrow message="function #fnName# cannot be found">
             <cfset resp = print()>
             <cfabort>
             

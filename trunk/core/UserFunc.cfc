@@ -10,6 +10,9 @@
         <cfargument name="contents" type="any">
         <cfargument name="scope" type="any">
         
+        <cfset var arg = "">
+        <cfset var args = variables.functionDetail.args>
+        
         <cfset variables.contents = arguments.contents>
         <cfset variables.scope = arguments.scope>
         
@@ -20,10 +23,15 @@
         <!--- we need to associate the arg values provided in contents, with those defined in setup --->
         <cfset variables.argMap = StructNew()>
         <!--- TODO: replace this iteration with a seq, once the codes written! --->
-        <cfset arg1 = variables.functionDetail.args.first().data>
-        <cfset variables.argMap[arg1] = variables.contents.first().data>
+        <cfloop condition="args.length() GT 0">
+            <cfset arg = args.first().data>
+            <cfset variables.argMap[arg] = variables.contents.first().data>
+            <cfset args = args.rest()>
+        </cfloop>
         
-        <cfdump var="#variables.argMap#" label="argMap (UserFunc/init)">
+        <cfif url.debug>
+            <cfdump var="#variables.argMap#" label="argMap (UserFunc/init)">
+        </cfif>
         
         <cfset super.init(this.name, arguments.contents, arguments.scope)>
         
@@ -37,22 +45,13 @@
             <cfdump var="#variables.functionDetail#" label="functionDetail (UserFunc/run)">
         </cfif>
         
-        <!--- loop over the body of the function, if any arg is referenced by name, then replace it's 
-        reference with the appropriate value from the argMap. If a nested function is found (:x) then
-        put the current function on the stack and resolve the nested function first --->
-        <cfset lineBody = variables.functionDetail.body>
-        
         <cfif url.debug>
             <cfdump var="#variables.functionDetail.args._getData()#" label="function args array (UserFunc/run)">
             <cfdump var="#variables.functionDetail.body._getData()#" label="function body array (UserFunc/run)">
         </cfif>
 		
-		<!--- TODO: Bind the args passed in during init() with the holders in the function body --->
-        <!---
-		<cfset bindTo(lineBody)>
-        --->
-        
-		<cfset resp = lineBody.run(variables.argMap)>
+        <!--- run the body of the function, passing in the argMap, so that calls can bind to vars as needed --->
+		<cfset resp = variables.functionDetail.body.run(variables.argMap)>
         
         <cfreturn resp>
     </cffunction>

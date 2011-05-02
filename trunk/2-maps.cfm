@@ -1,15 +1,15 @@
-<h3>Define a map: $(def, "inventors", ["Lisp", "McCarthy", "Closure", "Hickey"])</h3>
-<cfset $(def, "inventors", ["Lisp", "McCarthy", "Closure", "Hickey"])>
+<h3>Define a map: $("def inventors ['Lisp' 'McCarthy' 'Closure' 'Hickey']")</h3>
+<cfset $("def inventors ['Lisp' 'McCarthy' 'Closure' 'Hickey']")>
 
-<h3>Call the map as a function $(inventors, "Lisp")</h3>
+<h3>Call the map as a function $("inventors 'Lisp'")</h3>
 <p>Calling a map as a function causes it to search it's keys for the argument.</p>
-<cfset $(inventors, "Lisp")>
+<cfset $("inventors 'Lisp'")>
 
 <h3>Try using a FCF function as a key</h3>
-<code>
-&lt;cfset $(defn, "myobj", "[name]", [println, "hello, ", "[name]"])><br>
-&lt;cfset $(def, "inventors", [myobj, "McCarthy", "Closure", "Hickey"])><br>
-</code>
+<pre>
+&lt;cfset $(defn, "myobj", "[name]", [println, "hello, ", "[name]"])>
+&lt;cfset $(def, "inventors", [myobj, "McCarthy", "Closure", "Hickey"])>
+</pre>
 <cfset $(defn, "myobj", "[name]", [println, "hello, ", "[name]"])>
 <cfset $(def, "inventors", [myobj, "McCarthy", "Closure", "Hickey"])>
 <cfset $(inventors, myObj)>

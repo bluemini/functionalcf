@@ -59,6 +59,7 @@
     <!--- when you run a list, if the first item is a function, then we call that function with the reamining
     arguments. Otherwise, we return it as a list. --->
 	<cffunction name="run">
+        <cfargument name="bindMap" type="struct" required="true">
         <cfargument name="context" required="false" default="#this#">
         
 		<cfset var firstToken = variables.dataCore[1]>
@@ -87,11 +88,11 @@
         <!--- if we obtained a function or object, then we init() it, and return the new function object --->
         <cfif isObject(fn)>
             <cfif url.debug><cfoutput>--- LIST: #fnName# is an object, calling init("#rest().toString()#") ---<br></cfoutput></cfif>
-            <cfset resp = fn.init(rest()).run()>
+            <cfset resp = fn.init(rest()).run(arguments.bindMap)>
             
         <cfelseif StructKeyExists(context, fnName) AND isObject(context[fnName])>
             <cfif url.debug><cfoutput>--- LIST: creating custom function as UserFunc Object #fnName# ---<br></cfoutput></cfif>
-            <cfset resp = context[fnName].init(rest(), context).run()>
+            <cfset resp = context[fnName].init(rest(), context).run(arguments.bindMap)>
         
         <!--- if we are calling native CF functions --->
         <cfelseif isSimpleValue(fnName) AND fnName IS ".">

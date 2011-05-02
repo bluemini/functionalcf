@@ -18,28 +18,53 @@
     </cffunction>
     
     <cffunction name="run">
+        <cfargument name="bindMap" type="struct" required="true">
         <!--- get the response from running the first argument --->
-        <cfset var arg = variables.contents.first().data>
+        <cfset var arg = variables.contents.first()>
         <cfset var rest = variables.contents.rest()>
         <cfset var mainArg = "">
         <cfset var compArg = "">
         <cfset var result = true>
         
-        <cfif isNumeric(arg)>
-            <cfset mainArg = CreateObject("component", "Number").init(arg)>
+        <!---
+        <cfif StructKeyExists(arg, "getType") AND arg.getType() IS "token">
+            <cfset mainArg = arg.data>
+            <cfif isNumeric(mainArg)>
+        <!---
         <cfelseif isBoolean(arg)>
             <cfset mainArg = CreateObject("component", "TBoolean").init(arg)>
         <cfelseif isSimpleValue(arg)>
             <cfset mainArg = CreateObject("component", "String").init(arg)>
+        --->
+            <cfelseif StructKeyExists(arguments.bindMap, mainArg)>
+                BINDING...<cfabort>
+            <cfelse>
+                <cfthrow message="arguments to LT must be entities and I'm finding a token">
+            </cfif>
         <cfelse>
-            <cfset mainArg = arg>
+            <cfthrow message="call to run() must pass tokens">
         </cfif>
+        --->
         
         <!--- get each element, compare --->
         <cfloop condition="result AND rest.length() GT 0">
+            
+            <!--- get the value from the argument list, binding as appropriate --->
+            <cfif StructKeyExists(arg, "getType") AND arg.getType() IS "token">
+                <cfset mainArg = arg.data>
+                <cfif isNumeric(mainArg)>
+                <cfelseif StructKeyExists(arguments.bindMap, mainArg) AND isNumeric(arguments.bindMap[mainArg])>
+                    <cfset mainArg = arguments.bindMap[mainArg]>
+                <cfelse>
+                    <cfthrow message="arguments to LT must be numeric entities or a binding that maps to one.">
+                </cfif>
+            <cfelse>
+                <cfthrow message="call to run() must pass tokens">
+            </cfif>
+        
             <cfset compArg = rest.first().data>
-            <cfset result = result AND (arg LT compArg)>
-            <cfset arg = compArg>
+            <cfset result = result AND (mainArg LT compArg)>
+            <cfset mainarg = compArg>
             <cfset rest = rest.rest()>
         </cfloop>
         

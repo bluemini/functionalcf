@@ -3,10 +3,8 @@
     <cffunction name="run">
         <cfargument name="args">
         
-        <cfdump var="#args#"><cfabort>
-        
         <!--- args is a List where the first arg should be the CF function name --->
-        <cfset var f = args.first()>
+        <cfset var f = args.first().data>
         
         <cfif StructKeyExists(this, f)>
             <cfset t = this[f]>
@@ -29,17 +27,18 @@
         <cfargument name="args">
         
         <cfset var length = 0>
+        <cfset var item = "">
         
         <cftry>
-            <cfset var item = args.firstx()>
-            <cfcatch><cfdump var="#args#"></cfcatch>
+            <cfloop condition="args.length() GT 0">
+                <cfset item = args.first()>
+                <cfif item.getType() IS "String">
+                    <cfset length += len(item.data)>
+                </cfif>
+                <cfset args = args.rest()>
+            </cfloop>
+            <cfcatch><cfdump var="#args#"><cfrethrow></cfcatch>
         </cftry>
-        <cfloop condition="item IS NOT '' AND isSimpleValue(item)">
-            <cfoutput>#item#<br></cfoutput>
-            <cfset length += len(item)>
-            <cfset args = args.restx()>
-            <cfset item = args.firstx()>
-        </cfloop>
         
         <cfreturn length>
     </cffunction>

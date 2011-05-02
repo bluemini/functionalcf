@@ -9,11 +9,6 @@
 <pre>$("isNegative 2")</pre>
 <cfset $("isNegative 2")>
 
-
-<h3>Calling a CF native function</h3>
-<p>$(". Len 'this is my string'")</p>
-<cfset $(". Len 'this is my string'")>
-
 <cfabort>
 
 

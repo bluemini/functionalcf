@@ -20,7 +20,7 @@
         <cfset baseList = createObject("component", "List").init(arguments[1])>
         
         <!--- run the list, which will perform the primary top level function --->
-        <cfset out = baseList.run(variables)>
+        <cfset out = baseList.run(StructNew(), variables)>
         
         <cfif url.debug>
             <cfdump var="#out#" label="out (base)">

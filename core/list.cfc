@@ -98,7 +98,7 @@
         <cfelseif isSimpleValue(fnName) AND fnName IS ".">
             <cfif url.debug><cfoutput>--- LIST: calling native CF function ---<br></cfoutput></cfif>
             <cfset fn = CreateObject("component", "CF")>
-            <cfset resp = fn.run(rest())>
+            <cfset resp = fn.init(rest(), context).run(arguments.bindMap)>
             
         <cfelse>
             <cfdump var="#context#" label="context (list/run) - default action">

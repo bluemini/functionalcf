@@ -16,7 +16,19 @@
     <cfset variables.dataCore = ArrayNew(1)>
 
 	<cffunction name="init">
-		<cfargument name="contents" type="string">
+		<cfargument name="contents" type="any" hint="either a string (which will get parsed) or a List object">
+		
+		<cfif isSimpleValue(arguments.contents)>
+		<cfelse>
+			<cftry>
+				<cfif arguments.contents.getType() IS "List">
+					<cfreturn setData(contents._getData())>
+				<cfelse>
+					Not a list...<cfabort>
+				</cfif>
+				<cfcatch><cfdump var="#contents#" label="contents (list/init) - error"><cfrethrow></cfcatch>
+			</cftry>
+		</cfif>
         
         <cfset var contentLength = Len(contents)>
         
@@ -29,6 +41,7 @@
             <cfset parseInc(mid(contents, i, 1))>
         </cfloop>
         
+		<!---
         <cfset contents = Replace(contents, ",", " ", "ALL")>
         
         <!--- TODO: Improve this step, it's currently pretty crude, as this will affect spaces in string literals too --->
@@ -36,6 +49,8 @@
         
         <cfset variables.data = contents>
         <cfset variables.datanew = variables.parseSymbols[1][1]>
+		--->
+		
         <cfset this.data = contents>
         
         <cfreturn this>
@@ -62,7 +77,9 @@
                 <cfset fn = createObject("component", fnName)>
                 <cfcatch>
                     <cfif url.debug> - failed (#fnName# is not a function object)<br></cfif>
-                    <cfif Left(cfcatch.message, 39) IS NOT "Could not find the ColdFusion component"><cfdump var="#cfcatch.message#"><cfrethrow></cfif>
+                    <cfif Left(cfcatch.message, 39) IS NOT "Could not find the ColdFusion component"
+						AND Left(cfcatch.message, 40) IS NOT "invalid component definition, can't find">
+							<cfdump var="#cfcatch.message#"><cfrethrow></cfif>
                 </cfcatch>
             </cftry>
         </cfif>
@@ -83,8 +100,8 @@
             <cfset resp = fn.run(rest())>
             
         <cfelse>
-            <cfdump var="#context#">
-            <cfoutput>#fnName# #StructKeyExists(context, fnName)#</cfoutput>
+            <cfdump var="#context#" label="context (list/run) - default action">
+            <cfoutput>function name:#fnName# not a function<br>found function in context: #StructKeyExists(context, fnName)#</cfoutput>
             <cfset resp = print()>
             <cfabort>
             

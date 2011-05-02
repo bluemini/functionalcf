@@ -18,11 +18,11 @@
         </cfif>
         
         <!--- we need to associate the arg values provided in contents, with those defined in setup --->
-        <cfset args = StructNew()>
+        <cfset variables.argMap = StructNew()>
         <cfset arg1 = variables.functionDetail.args.first().data>
-        <cfset args[arg1] = variables.contents.first().data>
+        <cfset variables.argMap[arg1] = variables.contents.first().data>
         
-        <cfdump var="#args#">
+        <cfdump var="#variables.argMap#" label="argMap (UserFunc/init)">
         
         <cfset super.init(this.name, arguments.contents, arguments.scope)>
         
@@ -40,10 +40,13 @@
         put the current function on the stack and resolve the nested function first --->
         <cfset lineBody = variables.functionDetail.body>
         
-        <cfdump var="#variables.functionDetail.args._getData()#" label="function body array (UserFunc/run)">
+        <cfdump var="#variables.functionDetail.args._getData()#" label="function args array (UserFunc/run)">
         <cfdump var="#variables.functionDetail.body._getData()#" label="function body array (UserFunc/run)">
+		
+		<!--- TODO: Bind the args passed in during init() with the holders in the function body --->
+		<cfset bindTo(lineBody)>
         
-        <cfset resp = lineBody.run()>
+		<cfset resp = CreateObject("component", "List").init(lineBody).run()>
         
         <cfreturn resp>
     </cffunction>

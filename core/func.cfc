@@ -112,20 +112,6 @@
 		</cfoutput>
 	</cffunction>
 	
-	<cffunction name="processArgs">
-		<cfargument name="argCollection">
-		
-		<cfset var tempArray = arrayNew(1)>
-		
-		<cfif isDynArg(arguments.argCollection)>
-            <cfthrow message="Error in func.cfc, checking for dynamic args, but not sure what to do if found!! dev needed here">
-            <!--- TODO: handle dynamic args, if that means anything --->
-			<cfset tempArray = listToArray(mid(argCollection, 2, len(argCollection)-2))>
-		</cfif>
-        
-		<cfset variables.argArray = tempArray>
-	</cffunction>
-	
     <!--- ensure that the args are identifiers (ie not place holders) --->
 	<cffunction name="isDynArg">
 		<cfargument name="toCheck">

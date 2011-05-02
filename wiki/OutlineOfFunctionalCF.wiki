@@ -18,7 +18,7 @@ Defining new functions simply uses the 'defn' function with place holders for va
 
 To define a new function '*sayHi*' that takes a name parameter:
 {{{
-$("defn sayHi [name] (println 'Hi, ' name)");
+$("defn sayHi [name] (str 'Hi, ' name)");
 }}}
 there is no assignment, since like other functional languages all things are immutable.
 {{{

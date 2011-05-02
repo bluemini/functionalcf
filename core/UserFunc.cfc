@@ -30,7 +30,8 @@
     </cffunction>
     
     <cffunction name="run">
-
+        <cfargument name="bindMap" type="struct" required="true">
+        
         <cfif url.debug>
             <cfdump var="#variables.functionDetail#" label="functionDetail (UserFunc/run)">
         </cfif>
@@ -40,13 +41,17 @@
         put the current function on the stack and resolve the nested function first --->
         <cfset lineBody = variables.functionDetail.body>
         
-        <cfdump var="#variables.functionDetail.args._getData()#" label="function args array (UserFunc/run)">
-        <cfdump var="#variables.functionDetail.body._getData()#" label="function body array (UserFunc/run)">
+        <cfif url.debug>
+            <cfdump var="#variables.functionDetail.args._getData()#" label="function args array (UserFunc/run)">
+            <cfdump var="#variables.functionDetail.body._getData()#" label="function body array (UserFunc/run)">
+        </cfif>
 		
 		<!--- TODO: Bind the args passed in during init() with the holders in the function body --->
+        <!---
 		<cfset bindTo(lineBody)>
+        --->
         
-		<cfset resp = CreateObject("component", "List").init(lineBody).run()>
+		<cfset resp = lineBody.run(variables.argMap)>
         
         <cfreturn resp>
     </cffunction>

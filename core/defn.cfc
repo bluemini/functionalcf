@@ -83,6 +83,8 @@
     </cffunction>
     
     <cffunction name="run">
+        <cfargument name="bindMap" type="struct" required="true">
+        
 		<cfset var main = variables.contents>
         <cfset var func = createObject("component", "UserFunc")>
         <cfset var functionBody = ArrayNew(1)>

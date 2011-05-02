@@ -7,7 +7,7 @@
         <cfset super.init("Lt", arguments.contents, this)>
         
         <!--- ensure that there are at least two entries --->
-        <cfif contents.length LT 2>
+        <cfif contents.length() LT 2>
             <cfthrow message="LT requires at least one argument (master [first compare [second compare]])">
         </cfif>
         

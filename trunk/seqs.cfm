@@ -2,12 +2,12 @@
 <cfset $("defn isNegative [num] (lt num 0)")>
 
 <h3>Calling the function</h3>
-<pre>$("isNegative -2")
-<cfset $("isNegative -2")></pre>
+<pre>$("isNegative -2")</pre>
+<cfset $("isNegative -2")>
 
 <h3>Calling the function</h3>
-<pre>$("isNegative 2")
-<cfset $("isNegative 2")></pre>
+<pre>$("isNegative 2")</pre>
+<cfset $("isNegative 2")>
 
 
 <h3>Calling a CF native function</h3>

@@ -32,6 +32,9 @@
         <cfreturn "Token">
     </cffunction>
     
+    <cffunction name="toString">
+        <cfreturn run()>
+    </cffunction>
     <cffunction name="run">
         <cfreturn variables.val>
     </cffunction>

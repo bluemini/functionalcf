@@ -1,6 +1,8 @@
 <cfset this.name = "funcex">
 <cfset this.sessionManagement = true>
+
 <cfparam name="url.debug" default="false">
+<cfparam name="url.explain" default="false">
 
 <cffunction name="$" access="public" output="true">
     
@@ -29,17 +31,28 @@
         <!--- if the returned value is a UserFunc object and has a name, then add to variables --->
         <cfif isObject(out)>
             <cfset md = getMetaData(out)>
-            <cfif (Len(md.name) GTE 8 AND Right(md.name, 8) IS "UserFunc")
-                    OR (Len(md.name) GTE 5 AND Right(md.name, 5) IS ".list")
+            <cfif (Len(md.name) GTE 8 AND Right(md.name, 8) IS "UserFunc")>
+                <cftry>
+                    <cfset variables[out.name] = out>
+                    <cfoutput>> fcf/#out.name#<br></cfoutput>
+                    <cfcatch><cfrethrow></cfcatch>
+                </cftry>
+            <cfelseif (Len(md.name) GTE 5 AND Right(md.name, 5) IS ".list")
                     OR (Len(md.name) GTE 4 AND Right(md.name, 4) IS ".map")>
                 <cftry>
                     <cfset variables[out.name] = out>
-                    <cfoutput>> fcf/#out.name#</cfoutput>
+                    <cfoutput>>c #out.toString()#<br></cfoutput>
+                    <cfcatch><cfrethrow></cfcatch>
+                </cftry>
+            
+            <cfelseif (Len(md.name) GTE 6 AND Right(md.name, 6) IS ".token")>
+                <cftry>
+                    <cfoutput>>t #out.toString()#<br></cfoutput>
                     <cfcatch><cfrethrow></cfcatch>
                 </cftry>
             </cfif>
         <cfelseif isSimpleValue(out)>
-            <cfoutput>> #out#<br></cfoutput>
+            <cfoutput>>s #out#<br></cfoutput>
         </cfif>
         
 		<!--- <cfif structKeyExists(arguments, "arg1")>
@@ -77,16 +90,9 @@
 </cffunction>
 
 
-<cfset $("defn first [coll] (core first coll)")>
-<!--- <cfset $("first 'hello'")> --->
+<cfscript>
+// define first
+$("defn first [colle] (core first colle)");
 
-<cfset $("def aseq [[1 2] [3 4] [5 6]]")>
-<cfdump var="#aseq.first()._getData()#" label="variables.aseq.first()._getData() (base)">
 
-<cfset $("first aseq")>
-
-<cfabort>
-
-<cfset $("defn ffirst [coll] (first (first coll))")>
-<cfset $("def aseq [1 2 3 4 5]")>
-<cfset $("ffirst aseq")>
+</cfscript>

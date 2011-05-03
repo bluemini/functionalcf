@@ -23,7 +23,9 @@
             <cfset mapLen = ArrayLen(variables.dataCore)>
             <cfif mapLen MOD 2 GT 0><cfthrow message="Maps must have a factor of 2 keys"></cfif>
             <cfloop from="1" to="#mapLen#" index="i" step="2">
+                <!---
                 <cfset variables.data[variables.dataCore[i].data] = variables.dataCore[i+1].data>
+                --->
             </cfloop>
         </cfif>
         
@@ -97,6 +99,17 @@
     
     <cffunction name="getType">
         <cfreturn "Map">
+    </cffunction>
+    <cffunction name="toString">
+        <cfset var internals = _getData()>
+        <cfset var elems = ArrayLen(internals)>
+        <cfset var i = 1>
+        <cfset var resp = "">
+        <cfloop from="1" to="#elems#" index="i">
+            <cfset resp = ListAppend(resp, internals[i].toString(), " ")>
+        </cfloop>
+        <cfset resp = "[#resp#]">
+        <cfreturn resp>
     </cffunction>
     
     <cffunction name="getNext" returntype="any">

@@ -17,6 +17,7 @@
 
 	<cffunction name="init">
 		<cfargument name="contents" type="any" hint="either a string (which will get parsed) or a List object">
+        <cfargument name="scope" type="any">
 		
 		<cfif isSimpleValue(arguments.contents)>
 		<cfelse>
@@ -76,7 +77,7 @@
         </cfif>
         
         <!--- attempt to instantiate an object of type first param --->
-        <cfif fnName IS NOT ".">
+        <cfif fnName IS NOT "." AND  fnName IS NOT "core">
             <cftry>
                 <cfif url.debug>Creating instance of <cfoutput>#fnName#</cfoutput><br></cfif>
                 <cfset fn = createObject("component", fnName)>
@@ -94,6 +95,7 @@
             <cfif url.debug><cfoutput>--- LIST: #fnName# is an object, calling init("#rest().toString()#") ---<br></cfoutput></cfif>
             <cfset resp = fn.init(rest(), context).run(arguments.bindMap)>
             
+        <!--- if the function is a UserFunc object, then call it here --->
         <cfelseif StructKeyExists(context, fnName) AND isObject(context[fnName])>
             <cfif url.debug><cfoutput>--- LIST: creating custom function as UserFunc Object #fnName# ---<br></cfoutput></cfif>
             <cfset resp = context[fnName].init(rest(), context).run(arguments.bindMap)>
@@ -230,7 +232,15 @@
         <cfreturn "List">
     </cffunction>
     <cffunction name="toString">
-        <cfreturn "to implement...">
+        <cfset var internals = _getData()>
+        <cfset var elems = ArrayLen(internals)>
+        <cfset var i = 1>
+        <cfset var resp = "">
+        <cfloop from="1" to="#elems#" index="i">
+            <cfset resp = ListAppend(resp, internals[i].toString(), " ")>
+        </cfloop>
+        <cfset resp = "(#resp#)">
+        <cfreturn resp>
     </cffunction>
     
 	<cffunction name="onMissingMethod" access="public" returntype="any">

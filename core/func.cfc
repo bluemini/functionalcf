@@ -30,7 +30,7 @@
         
 		<cfset variables.name = arguments.name>
         <cfset variables.contents = arguments.contents>
-		<cfset variables.that = arguments.scope>
+		<cfset variables.scope = arguments.scope>
 		
         <cfset variables.meta.symbolTable = StructNew()>
         <cfset variables.meta.symbolCount = 0>

@@ -26,26 +26,6 @@
         <cfset var compArg = "">
         <cfset var result = true>
         
-        <!---
-        <cfif StructKeyExists(arg, "getType") AND arg.getType() IS "token">
-            <cfset mainArg = arg.data>
-            <cfif isNumeric(mainArg)>
-        <!---
-        <cfelseif isBoolean(arg)>
-            <cfset mainArg = CreateObject("component", "TBoolean").init(arg)>
-        <cfelseif isSimpleValue(arg)>
-            <cfset mainArg = CreateObject("component", "String").init(arg)>
-        --->
-            <cfelseif StructKeyExists(arguments.bindMap, mainArg)>
-                BINDING...<cfabort>
-            <cfelse>
-                <cfthrow message="arguments to LT must be entities and I'm finding a token">
-            </cfif>
-        <cfelse>
-            <cfthrow message="call to run() must pass tokens">
-        </cfif>
-        --->
-        
         <!--- get each element, compare --->
         <cfloop condition="result AND rest.length() GT 0">
             

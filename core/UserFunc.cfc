@@ -25,11 +25,13 @@
         <!--- TODO: replace this iteration with a seq, once the codes written! --->
         <cfloop condition="args.length() GT 0">
             <cfset arg = args.first().data>
-            <cfset variables.argMap[arg] = variables.contents.first().data>
+			<cfset value = variables.contents.first()>
+			<!--- check if the value is actually a reference to a var... --->
+            <cfset variables.argMap[arg] = value>
             <cfset args = args.rest()>
         </cfloop>
         
-        <cfif url.debug>
+        <cfif url.debug or true>
             <cfdump var="#variables.argMap#" label="argMap (UserFunc/init)">
         </cfif>
         

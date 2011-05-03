@@ -22,6 +22,7 @@
 		<cfelse>
 			<cftry>
 				<cfif arguments.contents.getType() IS "List">
+					<cfdump var="#contents._getData()#" label="arguments content data (list/init)">
 					<cfreturn setData(contents._getData())>
 				<cfelse>
 					Not a list...<cfabort>
@@ -32,7 +33,9 @@
         
         <cfset var contentLength = Len(contents)>
         
+		<!---
         <cfset parse(contents)>
+		--->
         
         <!--- send the incoming string through the incremental parser to create the object list --->
         <cfset contents &= " ">
@@ -68,6 +71,7 @@
         <cfif firstToken.getType() IS "Token">
             <cfset fnName = firstToken.data>
         <cfelse>
+			<cfdump var="#firstToken#">
             <cfthrow message="the first element of a runnable list, must be a token">
         </cfif>
         
@@ -98,6 +102,12 @@
         <cfelseif isSimpleValue(fnName) AND fnName IS ".">
             <cfif url.debug><cfoutput>--- LIST: calling native CF function ---<br></cfoutput></cfif>
             <cfset fn = CreateObject("component", "CF")>
+            <cfset resp = fn.init(rest(), context).run(arguments.bindMap)>
+            
+        <!--- if we are calling native CF functions --->
+        <cfelseif isSimpleValue(fnName) AND fnName IS "core">
+            <cfif url.debug><cfoutput>--- LIST: calling CORE function ---<br></cfoutput></cfif>
+            <cfset fn = CreateObject("component", "fcfcore")>
             <cfset resp = fn.init(rest(), context).run(arguments.bindMap)>
             
         <cfelse>

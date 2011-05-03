@@ -7,12 +7,12 @@
         <cfset super.init("defn", arguments.contents, arguments.scope)>
         
         <!--- args is a List where the first arg should be the CF function name --->
-        <cfset var f = variables.contents.first().data>
+        <cfset variables.f = variables.contents.first().data>
         
         <cfif StructKeyExists(this, f)>
             <cfset variables.t = this[f]>
         <cfelse>
-            Noooooooooo
+            <cfthrow message="no native function #f# that can be called.">
         </cfif>
         
         <cfreturn this>
@@ -20,7 +20,7 @@
     
     <cffunction name="run" returntype="any">
         <cfargument name="bindMap" type="struct" required="true">
-        <cfreturn variables.t(variables.contents.rest())>
+		<cfreturn this[variables.f](variables.contents.rest())>
     </cffunction>
     
     

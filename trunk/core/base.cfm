@@ -75,3 +75,18 @@
 	<cfargument name="targetpage" type="any" required="true">
 	<cfinclude template="#arguments.targetpage#">
 </cffunction>
+
+
+<cfset $("defn first [coll] (core first coll)")>
+<!--- <cfset $("first 'hello'")> --->
+
+<cfset $("def aseq [[1 2] [3 4] [5 6]]")>
+<cfdump var="#aseq.first()._getData()#" label="variables.aseq.first()._getData() (base)">
+
+<cfset $("first aseq")>
+
+<cfabort>
+
+<cfset $("defn ffirst [coll] (first (first coll))")>
+<cfset $("def aseq [1 2 3 4 5]")>
+<cfset $("ffirst aseq")>

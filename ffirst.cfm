@@ -5,19 +5,20 @@
 <h3>Define ffirst</h3>
 
 <p>$("defn ffirst [coll] (first (first coll))")</p>
-<cfset $("defn ffirst [coll] (core first (first coll))")>
+<cfset $("defn ffirst [coll] (first (core first coll))")>
 
-<!---
+<p>$("def colle (first aseq)")</p>
+<cfset $("def colle (first aseq)")>
 
-<p>$("def res (first aseq)")</p>
-<cfset $("def res (first aseq)")>
+<cfoutput>#colle.toString()# #colle.getType()#</cfoutput>
 
-<cfoutput>#res.toString()# #res.getType()#</cfoutput>
+<p>$("core first colle")</p>
+<cfset $("core first colle")>
 
-<p>$("first res")</p>
-<cfset $("first res")>
---->
+<p>$("first colle")</p>
+<cfset $("first colle")>
 
+<cfabort>
 <p>$("ffirst aseq")</p>
 <cfset $("ffirst aseq")>
 

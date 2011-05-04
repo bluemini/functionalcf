@@ -66,11 +66,21 @@
         <cfargument name="bindMap" type="struct" required="true">
         <cfargument name="context" required="false" default="#this#">
         
-		<cfset var firstToken = variables.dataCore[1]>
+		<cfset var firstToken = "">
         <cfset var fn = "">
         
-        <cfif firstToken.getType() IS "Token">
-            <cfset fnName = firstToken.data>
+        bindMap:<cfdump var="#bindMap#">
+
+        <!--- if the rest() of the data is runnable, we need to do that first --->
+        <cfif rest().first().getType() IS "list">
+            Run inner function: <cfoutput>#rest().toString()#<br></cfoutput>
+            <cfset args = rest().first().run(bindMap, context)>
+            <cfdump var="#args#" label="resultant args from calling inner function">
+            <cfabort>
+        </cfif>
+        
+        <cfif first().getType() IS "Token">
+            <cfset fnName = first().data>
         <cfelse>
 			<cfdump var="#firstToken#">
             <cfthrow message="the first element of a runnable list, must be a token">
@@ -79,10 +89,10 @@
         <!--- attempt to instantiate an object of type first param --->
         <cfif fnName IS NOT "." AND  fnName IS NOT "core">
             <cftry>
-                <cfif url.debug>Creating instance of <cfoutput>#fnName#</cfoutput><br></cfif>
                 <cfset fn = createObject("component", fnName)>
+                <cfif url.debug>Creating instance of <cfoutput>#fnName#</cfoutput><br></cfif>
                 <cfcatch>
-                    <cfif url.debug> - failed (#fnName# is not a function object)<br></cfif>
+                    <cfif url.debug><cfoutput>--- LIST: #fnName# is not a CFC/function object<br></cfoutput></cfif>
                     <cfif Left(cfcatch.message, 39) IS NOT "Could not find the ColdFusion component"
 						AND Left(cfcatch.message, 40) IS NOT "invalid component definition, can't find">
 							<cfdump var="#cfcatch.message#"><cfrethrow></cfif>
@@ -92,23 +102,23 @@
         
         <!--- if we obtained a function or object, then we init() it, and return the new function object --->
         <cfif isObject(fn)>
-            <cfif url.debug><cfoutput>--- LIST: #fnName# is an object, calling init("#rest().toString()#") ---<br></cfoutput></cfif>
+            <cfif url.debug><cfoutput><p>--- LIST: #fnName# is an object, calling init <strong>#rest().toString()#</strong> ---</p></cfoutput></cfif>
             <cfset resp = fn.init(rest(), context).run(arguments.bindMap)>
             
         <!--- if the function is a UserFunc object, then call it here --->
         <cfelseif StructKeyExists(context, fnName) AND isObject(context[fnName])>
-            <cfif url.debug><cfoutput>--- LIST: creating custom function as UserFunc Object #fnName# ---<br></cfoutput></cfif>
+            <cfif url.debug><cfoutput><p>--- LIST: creating custom function as UserFunc Object <strong>#fnName#</strong> ---</p></cfoutput></cfif>
             <cfset resp = context[fnName].init(rest(), context).run(arguments.bindMap)>
         
         <!--- if we are calling native CF functions --->
         <cfelseif isSimpleValue(fnName) AND fnName IS ".">
-            <cfif url.debug><cfoutput>--- LIST: calling native CF function ---<br></cfoutput></cfif>
+            <cfif url.debug><cfoutput><p>--- LIST: calling native <strong>CF</strong> function ---</p></cfoutput></cfif>
             <cfset fn = CreateObject("component", "CF")>
             <cfset resp = fn.init(rest(), context).run(arguments.bindMap)>
             
         <!--- if we are calling native CF functions --->
         <cfelseif isSimpleValue(fnName) AND fnName IS "core">
-            <cfif url.debug><cfoutput>--- LIST: calling CORE function ---<br></cfoutput></cfif>
+            <cfif url.debug><cfoutput><p>--- LIST: calling <strong>CORE</strong> function ---</p></cfoutput></cfif>
             <cfset fn = CreateObject("component", "fcfcore")>
             <cfset resp = fn.init(rest(), context).run(arguments.bindMap)>
             

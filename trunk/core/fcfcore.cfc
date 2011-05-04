@@ -27,6 +27,10 @@
 		<cfreturn this[variables.f](arguments.bindMap, variables.contents.rest())>
          --->
         <cfset var f = this[variables.f]>
+		<cfif url.explain>
+			<cfoutput>Running fcfcore, function: '#variables.f#', arguments: #variables.contents.rest().toString()#</cfoutput>
+			<cfdump var="#variables.contents.rest()#">
+		</cfif>
         <cfreturn f(arguments.bindMap, variables.contents.rest())>
     </cffunction>
 	
@@ -56,8 +60,8 @@
     		<cfelseif StructKeyExists(bindMap, arg)>
                 <cfset arg = bindMap[arg]>
                 <cfif url.explain>
-                    <cfoutput>and can be bound</p><p>#arg.toString()#</p></cfoutput>
-                    <cfdump var="#arg#">
+                    <cfoutput>, can be bound and resolves to: #arg.toString()#</p></cfoutput>
+                    <cfdump var="#bindMap#" label="bindMap (fcfcore/run)">
                 </cfif>
             <cfelse>
                 <cfif url.explain>
@@ -81,6 +85,9 @@
         </cfif>
 
         <cfif arg.getType() IS "list">
+            <cfif url.explain>
+                <cfoutput>going to run #arg.toString()#, passing bindMap and scope<br></cfoutput>
+            </cfif>
             <cfset arg = arg.run(arguments.bindMap, variables.scope)>
         <cfelseif StructKeyExists(arg, "data") AND StructKeyExists(variables.scope, arg.data)>
             <cfset arg = variables.scope[arg.data]>

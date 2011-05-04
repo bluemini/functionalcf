@@ -30,7 +30,7 @@
             <cfset args = args.rest()>
         </cfloop>
         
-        <cfif url.debug>
+        <cfif url.debug or true>
             <cfdump var="#variables.argMap#" label="argMap (UserFunc/init)">
         </cfif>
         
@@ -43,6 +43,12 @@
         <cfif url.debug>
             <cfdump var="#variables.functionDetail#" label="functionDetail (UserFunc/run)">
         </cfif>
+		
+		<cfif url.explain>
+			Running UserFunc whose:<br>
+			<cfoutput>ARGS: #variables.functionDetail.args.toString()#<br>
+			BODY: #variables.functionDetail.body.toString()# (type: #variables.functionDetail.body.getType()#)<br></cfoutput>
+		</cfif>
         
         <cfif url.debug>
             <cfdump var="#variables.functionDetail.args._getData()#" label="function args array (UserFunc/run)">
@@ -50,7 +56,7 @@
         </cfif>
 		
         <!--- run the body of the function, passing in the argMap, so that calls can bind to vars as needed --->
-		<cfset resp = variables.functionDetail.body.run(variables.argMap, variables.scope)>
+		<cfset resp = variables.functionDetail.body.run(arguments.bindMap, variables.scope)>
         
         <cfreturn resp>
     </cffunction>

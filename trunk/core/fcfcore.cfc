@@ -6,6 +6,10 @@
         
         <cfset super.init("fcfcore", arguments.contents, arguments.scope)>
         
+        <cfif url.debug or url.explain>
+            "Contents" passed to fcfcore: <cfoutput>#variables.contents.toString()#</cfoutput>
+        </cfif>
+        
         <!--- args is a List where the first arg should be the CF function name --->
         <cfset variables.f = variables.contents.first().data>
         
@@ -41,9 +45,9 @@
         <!--- fetch the first item from the args and resolve any local bindings --->
 		<cfset var arg = args.first()>
         
-        <cfif url.explain>
-            <p>Arguments are passed as lists, so grab the first element of the list using first().</p>
-            <cfdump var="#arg#" label="arg (fcfcore/first)">
+        <cfif url.explain or url.debug>
+            <p>Arguments passed to fcfcore.first <cfoutput>#args.toString()#</cfoutput></p>
+            <p>, the first item is the argument collection. <cfoutput>#arg.toString()#</cfoutput></p>
         </cfif>
         
         <!--- if the arg is a token we need to check if it's numeric or can be resolved to a local binding --->
@@ -62,6 +66,12 @@
                 <cfif url.explain>
                     <cfoutput>, can be bound and resolves to: #arg.toString()#</p></cfoutput>
                     <cfdump var="#bindMap#" label="bindMap (fcfcore/run)">
+                </cfif>
+            <cfelseif StructKeyExists(variables.scope, arg)>
+                <cfset arg = variables.scope[arg]>
+                <cfif url.explain>
+                    <cfoutput>and can be bound</p><p>#arg.toString()#</p></cfoutput>
+                    <cfdump var="#arg#">
                 </cfif>
             <cfelse>
                 <cfif url.explain>

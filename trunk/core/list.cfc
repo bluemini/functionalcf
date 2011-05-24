@@ -74,6 +74,9 @@
         <!--- if the rest() of the data is runnable, we need to do that first --->
         <cfif rest().first().getType() IS "list">
             Run inner function: <cfoutput>#rest().toString()#<br></cfoutput>
+            <cfif rest().first().rest().first().getType() IS "token">
+                <cfoutput>#rest().first().rest().first().data#</cfoutput><cfabort>
+            </cfif>
             <cfset args = rest().first().run(bindMap, context)>
             <cfdump var="#args#" label="resultant args from calling inner function">
             <cfabort>

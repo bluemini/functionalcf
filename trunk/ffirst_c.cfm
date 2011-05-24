@@ -9,6 +9,3 @@
 
 <p>$("ffirst aseq")</p>
 <cfset $("ffirst aseq")>
-
-
-<cfabort>

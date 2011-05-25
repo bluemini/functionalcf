@@ -46,9 +46,12 @@
         <!--- send the incoming string through the incremental parser to create the object list --->
         <cfset inputData &= " ">
         <cfset contentLength ++>
+        <cfset request.parserCount = 1>
         <cfloop from="1" to="#contentLength#" index="i">
             <cfset parseInc(mid(inputData, i, 1))>
         </cfloop>
+        
+        <cfdump var="#variables.dataCore#"><cfabort>
         
 		<!---
         <cfset contents = Replace(contents, ",", " ", "ALL")>
@@ -76,7 +79,7 @@
         
         <cfif url.explain>
             <strong>List</strong>.run()<br>
-            <cfdump var="#bindMap#" label="bindMap (List/run)">
+            <cfdump var="#bindMap#" label="bindMap (List/run)" expand="false">
         </cfif>
 
         <!---
@@ -135,7 +138,7 @@
             <cfset resp = fn.init(rest(), context).run(arguments.bindMap)>
             
         <cfelse>
-            <cfdump var="#context#">
+            <cfdump var="#context#" label="context (list/run)" expand="false">
             <cfthrow message="function #fnName# cannot be found">
             <cfset resp = print()>
             <cfabort>
@@ -212,11 +215,11 @@
     </cffunction>
     
     <!--- takes a char at a time and fills its internal array --->
-	<cffunction name="parseInc" output="false">
+	<cffunction name="parseInc" output="true">
         <cfargument name="char">
         
-        <cfset var finished = false>
-        <cfset var result = false>
+        <cfset var finished = 0>
+        <cfset var result = 0>
         
         <cfif variables.dataFinalized><cfthrow message="list is immutable and cannot be modified"></cfif>
         
@@ -225,7 +228,7 @@
         <cfelseif char IS "(">
             <cfset variables.dataType = CreateObject("component", "List")>
         <cfelseif char IS "[">
-            New Map (from inside list)<br>
+            List/New Map<br>
             <cfset variables.dataType = CreateObject("component", "Map")>
         <cfelseif char IS "{">
             <cfset variables.dataType = CreateObject("component", "Set")>
@@ -237,17 +240,19 @@
         </cfif>
         
         <!--- if the data type has finished, then we stash current dataType --->
-        <cfif finished>
+        <cfif finished GT 0>
+            List/Closing <cfoutput>#variables.dataType.getType()#/finished: #finished#</cfoutput><br>
             <cfset ArrayAppend(variables.dataCore, variables.dataType)>
             <cfset StructDelete(variables, "dataType")>
         </cfif>
         
         <!--- when a list self closes, it doesn't want an enclosing list to reuse the closing ) char,
             so it returns 2, asking the enclosing list to ignore the current value --->
-        <cfif char IS ")" AND finished NEQ 2>
-            <cfset result = 2>
+        <cfif char IS ")" AND finished NEQ 1>
+            <cfset result = 1>
         </cfif>
 
+        List/returning <cfoutput>#result#</cfoutput><br>
         <cfreturn result>
     </cffunction>
     

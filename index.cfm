@@ -1,4 +1,5 @@
 <cfdirectory directory="#getDirectoryFromPath(getCurrentTemplatePath())#" name="files">
-<ul><cfoutput query="files">
+<cfquery name="files" dbtype="query">select * from files order by name</cfquery>
+<ul><cfoutput query="files"><cfif type IS "file">
 	<li><a href="#name#">#name#</a></li>
-</cfoutput></ul>
+</cfif></cfoutput></ul>

@@ -18,13 +18,13 @@
         <cfif variables.dataFinalized><cfthrow message="list is immutable and cannot be modified"></cfif>
         
         <cfif ListFind("[,],(,),{,}", char)>
-            <cfreturn 1><!--- hit a close of containing object --->
+            <cfreturn 2><!--- hit a close of containing object --->
         <cfelseif char IS NOT " ">
             <cfset variables.val &= char>
             <cfset this.data = variables.val>
-            <cfreturn false>
+            <cfreturn 0>
         <cfelse>
-            <cfreturn 2><!--- other type of close --->
+            <cfreturn 1><!--- other type of close --->
         </cfif>
     </cffunction>
     

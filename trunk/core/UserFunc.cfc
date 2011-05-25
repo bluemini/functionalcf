@@ -30,7 +30,7 @@
             <cfthrow message="unable to merge provided arguments with those required. Length mismatch">
         </cfif>
         
-        <cfif url.debug or true>
+        <cfif url.debug>
             <cfdump var="#argMap#" label="argMap (UserFunc/init)">
         </cfif>
         
@@ -58,8 +58,15 @@
             
             <!--- if the refernced var is in global scope (variables) assign it --->
             <cfif data.first().getType() IS "list">
-                <cfoutput>Running #data.first().toString()#<br></cfoutput>
-                <cfset argMap[handle.toString()] = data.first().run(bindMap, variables.scope)>
+                <cfif url.explain>
+                    <cfoutput>Running #data.first().toString()#<br></cfoutput>
+                </cfif>
+                <!--- the use of an intermediary variable seemed to be necessary for Railo to store the correct value --->
+                <cfset resp = data.first().run(bindMap, variables.scope)>
+                <cfif url.explain>
+                    <cfoutput>returned #resp.toString()#</cfoutput><br>
+                </cfif>
+                <cfset argMap[handle.toString()] = resp>
             <cfelseif StructKeyExists(variables.scope, data.first().toString())>
                 <cfset argMap[handle.toString()] = variables.scope[data.first().toString()]>
             <cfelseif StructKeyExists(bindMap, data.first().toString())>
@@ -74,8 +81,8 @@
         </cfloop>
         
         <cfif url.explain>
-            <cfdump var="#bindMap#" label="bindMap (UserFunc/run)">
-            <cfdump var="#argMap#" label="argMap (UserFunc/run)">
+            <cfdump var="#bindMap#" label="bindMap (UserFunc/run)" expand="false">
+            <cfdump var="#argMap#" label="argMap (UserFunc/run)" expand="false">
         </cfif>
         
         <!--- run the body of the function, passing in the argMap, so that calls can bind to vars as needed

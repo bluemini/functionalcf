@@ -2,7 +2,7 @@
 <cfset this.sessionManagement = true>
 
 <cfparam name="url.debug" default="false">
-<cfparam name="url.explain" default="false">
+<cfparam name="url.explain" default="#url.debug#">
 
 <cffunction name="$" access="public" output="true">
     
@@ -92,7 +92,7 @@
 
 <cfscript>
 // define first
-$("defn first [colle] (core first colle)");
+// $("defn first [colle] (core first colle)");
 
 
 </cfscript>

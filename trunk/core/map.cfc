@@ -59,11 +59,11 @@
     </cffunction>
 	
     <!--- takes a char at a time and fills its internal array --->
-    <cffunction name="parseInc" output="false">
+    <cffunction name="parseInc" output="true">
         <cfargument name="char">
         
-        <cfset var finished = false>
-        <cfset var result = false>
+        <cfset var finished = 0>
+        <cfset var result = 0>
         <cfset var inString = false>
         
         Processing <cfoutput>'#char#'</cfoutput> in Map<br>
@@ -71,13 +71,13 @@
         <cfif variables.dataFinalized><cfthrow message="list is immutable and cannot be modified"></cfif>
         
         <cfif StructKeyExists(variables, "dataType")>
-            Adding <cfoutput>#char# to #variables.dataType.getType()#</cfoutput><br>
+            Adding <cfoutput>'#char#' to #variables.dataType.getType()#</cfoutput><br>
             <cfset finished = variables.dataType.parseInc(char)>
         <cfelseif char IS "(">
             New List<br>
             <cfset variables.dataType = CreateObject("component", "List")>
         <cfelseif char IS "[">
-            New Map<br>
+            Map/New Map<br>
             <cfset variables.dataType = CreateObject("component", "Map")>
         <cfelseif char IS "{">
             New Set<br>
@@ -87,25 +87,25 @@
             <cfset variables.dataType = CreateObject("component", "String")>
             <cfset inString = true>
         <cfelseif NOT ListFind(" ,[,],(,),{,}", char)>
-            New Token<br>
+            Map/New Token<br>
             <cfset variables.dataType = CreateObject("component", "Token")>
             <cfset finished = variables.dataType.parseInc(char)>
         </cfif>
         
         <!--- if the data type has finished, then we stash current dataType --->
-        <cfif finished>
-            Closing <cfoutput>#variables.dataType.getType()#</cfoutput><br>
+        <cfif finished GT 0>
+            Map/Closing <cfoutput>#variables.dataType.getType()#/finished: #finished#</cfoutput><br>
             <cfset ArrayAppend(variables.dataCore, variables.dataType)>
             <cfset StructDelete(variables, "dataType")>
-            <cfset inString = false>
         </cfif>
         
         <!--- when a map self closes, it doesn't want an enclosing list to reuse the closing ) char,
             so it returns 2, asking the enclosing list to ignore the current value --->
-        <cfif char IS "]" AND finished NEQ 2>
-            <cfset result = 2>
+        <cfif char IS "]" AND finished NEQ 1>
+            <cfset result = 1>
         </cfif>
 
+        Map/returning <cfoutput>#result#</cfoutput><br>
         <cfreturn result>
     </cffunction>
     

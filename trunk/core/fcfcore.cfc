@@ -65,7 +65,7 @@
                 <cfset arg = bindMap[arg]>
                 <cfif url.explain>
                     <cfoutput>, can be bound and resolves to: #arg.toString()#</p></cfoutput>
-                    <cfdump var="#bindMap#" label="bindMap (fcfcore/run)">
+                    <cfdump var="#bindMap#" label="bindMap (fcfcore/run)" expand="false">
                 </cfif>
             <cfelseif StructKeyExists(variables.scope, arg)>
                 <cfset arg = variables.scope[arg]>

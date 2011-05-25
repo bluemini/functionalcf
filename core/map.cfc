@@ -7,10 +7,10 @@
     
 	<!--- creates a map object, it expects a CF struct --->
 	<cffunction name="init" returntype="any" output="true">
-        <cfargument name="contents" type="any" hint="accepts a list object of the function body..">
+        <cfargument name="inputData" type="any" hint="accepts a list object of the function body..">
         <cfargument name="scope" default="this" type="any">
         
-        <cfset super.init("defn", arguments.contents, arguments.scope)>
+        <cfset super.init("defn", arguments.inputData, arguments.scope)>
         
         <cfreturn this>
 	</cffunction>
@@ -59,33 +59,45 @@
     </cffunction>
 	
     <!--- takes a char at a time and fills its internal array --->
-    <cffunction name="parseInc">
+    <cffunction name="parseInc" output="false">
         <cfargument name="char">
         
         <cfset var finished = false>
         <cfset var result = false>
+        <cfset var inString = false>
+        
+        Processing <cfoutput>'#char#'</cfoutput> in Map<br>
         
         <cfif variables.dataFinalized><cfthrow message="list is immutable and cannot be modified"></cfif>
         
         <cfif StructKeyExists(variables, "dataType")>
+            Adding <cfoutput>#char# to #variables.dataType.getType()#</cfoutput><br>
             <cfset finished = variables.dataType.parseInc(char)>
         <cfelseif char IS "(">
+            New List<br>
             <cfset variables.dataType = CreateObject("component", "List")>
         <cfelseif char IS "[">
+            New Map<br>
             <cfset variables.dataType = CreateObject("component", "Map")>
         <cfelseif char IS "{">
+            New Set<br>
             <cfset variables.dataType = CreateObject("component", "Set")>
         <cfelseif char IS "'">
+            New String<br>
             <cfset variables.dataType = CreateObject("component", "String")>
+            <cfset inString = true>
         <cfelseif NOT ListFind(" ,[,],(,),{,}", char)>
+            New Token<br>
             <cfset variables.dataType = CreateObject("component", "Token")>
             <cfset finished = variables.dataType.parseInc(char)>
         </cfif>
         
         <!--- if the data type has finished, then we stash current dataType --->
         <cfif finished>
+            Closing <cfoutput>#variables.dataType.getType()#</cfoutput><br>
             <cfset ArrayAppend(variables.dataCore, variables.dataType)>
             <cfset StructDelete(variables, "dataType")>
+            <cfset inString = false>
         </cfif>
         
         <!--- when a map self closes, it doesn't want an enclosing list to reuse the closing ) char,

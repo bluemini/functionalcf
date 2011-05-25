@@ -16,33 +16,38 @@
     <cfset variables.dataCore = ArrayNew(1)>
 
 	<cffunction name="init">
-		<cfargument name="contents" type="any" hint="either a string (which will get parsed) or a List object">
+		<cfargument name="inputData" type="any" hint="either a string (which will get parsed) or a List object">
         <cfargument name="scope" type="any">
 		
-		<cfif isSimpleValue(arguments.contents)>
+        <cfif url.explain>
+            <strong>List</strong>.init()<br>
+            <cfdump var="#inputData#" label="inputData (list/init)"><br>
+        </cfif>
+
+		<cfif isSimpleValue(arguments.inputData)>
 		<cfelse>
 			<cftry>
 				<cfif arguments.contents.getType() IS "List">
-					<cfdump var="#contents._getData()#" label="arguments content data (list/init)">
+					<cfdump var="#contents._getData()#" label="arguments inputData data (list/init)">
 					<cfreturn setData(contents._getData())>
 				<cfelse>
 					Not a list...<cfabort>
 				</cfif>
-				<cfcatch><cfdump var="#contents#" label="contents (list/init) - error"><cfrethrow></cfcatch>
+				<cfcatch><cfdump var="#inputData#" label="inputData (list/init) - error"><cfrethrow></cfcatch>
 			</cftry>
 		</cfif>
         
-        <cfset var contentLength = Len(contents)>
+        <cfset var contentLength = Len(inputData)>
         
 		<!---
         <cfset parse(contents)>
 		--->
         
         <!--- send the incoming string through the incremental parser to create the object list --->
-        <cfset contents &= " ">
+        <cfset inputData &= " ">
         <cfset contentLength ++>
         <cfloop from="1" to="#contentLength#" index="i">
-            <cfset parseInc(mid(contents, i, 1))>
+            <cfset parseInc(mid(inputData, i, 1))>
         </cfloop>
         
 		<!---
@@ -55,7 +60,7 @@
         <cfset variables.datanew = variables.parseSymbols[1][1]>
 		--->
 		
-        <cfset this.data = contents>
+        <cfset this.data = inputData>
         
         <cfreturn this>
 	</cffunction>
@@ -69,18 +74,22 @@
 		<cfset var firstToken = "">
         <cfset var fn = "">
         
-        bindMap:<cfdump var="#bindMap#">
+        <cfif url.explain>
+            <strong>List</strong>.run()<br>
+            <cfdump var="#bindMap#" label="bindMap (List/run)">
+        </cfif>
 
+        <!---
         <!--- if the rest() of the data is runnable, we need to do that first --->
         <cfif rest().first().getType() IS "list">
-            Run inner function: <cfoutput>#rest().toString()#<br></cfoutput>
-            <cfif rest().first().rest().first().getType() IS "token">
-                <cfoutput>#rest().first().rest().first().data#</cfoutput><cfabort>
-            </cfif>
+            Run inner function: <cfoutput>#rest().first().toString()#<br></cfoutput>
+            <!--- <cfif rest().first().rest().first().getType() IS "token">
+                <cfoutput>#rest().first().rest().first().data#</cfoutput>
+            </cfif> --->
             <cfset args = rest().first().run(bindMap, context)>
             <cfdump var="#args#" label="resultant args from calling inner function">
-            <cfabort>
         </cfif>
+        --->
         
         <cfif first().getType() IS "Token">
             <cfset fnName = first().data>
@@ -203,7 +212,7 @@
     </cffunction>
     
     <!--- takes a char at a time and fills its internal array --->
-	<cffunction name="parseInc">
+	<cffunction name="parseInc" output="false">
         <cfargument name="char">
         
         <cfset var finished = false>
@@ -216,6 +225,7 @@
         <cfelseif char IS "(">
             <cfset variables.dataType = CreateObject("component", "List")>
         <cfelseif char IS "[">
+            New Map (from inside list)<br>
             <cfset variables.dataType = CreateObject("component", "Map")>
         <cfelseif char IS "{">
             <cfset variables.dataType = CreateObject("component", "Set")>

@@ -1,17 +1,17 @@
 <cfcomponent extends="func" displayName="FunctionalCF Core">
 
     <cffunction name="init" returntype="any" output="true" >
-        <cfargument name="contents" type="any">
+        <cfargument name="inputData" type="any">
         <cfargument name="scope" type="any">
         
-        <cfset super.init("fcfcore", arguments.contents, arguments.scope)>
+        <cfset super.init("fcfcore", arguments.inputData, arguments.scope)>
         
         <cfif url.debug or url.explain>
-            "Contents" passed to fcfcore: <cfoutput>#variables.contents.toString()#</cfoutput>
+            "Contents" passed to fcfcore: <cfoutput>#variables.inputData.toString()#</cfoutput>
         </cfif>
         
         <!--- args is a List where the first arg should be the CF function name --->
-        <cfset variables.f = variables.contents.first().data>
+        <cfset variables.f = variables.inputData.first().data>
         
         <cfif StructKeyExists(this, f)>
             <cfset variables.t = this[f]>
@@ -32,10 +32,10 @@
          --->
         <cfset var f = this[variables.f]>
 		<cfif url.explain>
-			<cfoutput>Running fcfcore, function: '#variables.f#', arguments: #variables.contents.rest().toString()#</cfoutput>
-			<cfdump var="#variables.contents.rest()#">
+			<cfoutput>Running fcfcore, function: '#variables.f#', arguments: #variables.inputData.rest().toString()#</cfoutput>
+			<cfdump var="#variables.inputData.rest()#">
 		</cfif>
-        <cfreturn f(arguments.bindMap, variables.contents.rest())>
+        <cfreturn f(arguments.bindMap, variables.inputData.rest())>
     </cffunction>
 	
 	<cffunction name="first">

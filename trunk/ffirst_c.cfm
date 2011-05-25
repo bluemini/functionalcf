@@ -4,8 +4,8 @@
 
 <h3>Define ffirst</h3>
 
-<p>$("defn ffirst [coll] (first (first coll))")</p>
+<h3>$("defn ffirst [coll] (first (first coll))")</h3>
 <cfset $("defn ffirst [coll] ( first ( first coll))")>
 
-<p>$("ffirst aseq")</p>
+<h3>$("ffirst aseq")</h3>
 <cfset $("ffirst aseq")>

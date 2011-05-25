@@ -1,18 +1,18 @@
 <cfcomponent extends="func" implements="IRunnable">
 
 	<cffunction name="init" output="true" hint="Allows you to define a function" returntype="any">
-        <cfargument name="contents" type="any" hint="accepts a list object of the function body..">
+        <cfargument name="inputData" type="any" hint="accepts a list object of the function body..">
         <cfargument name="scope" default="this" type="any">
         
 	    <cfset var arrKeys = structKeyArray(arguments)>
 	    <cfset var arrKey = 0>
 	    <cfset var attr = {}>
 	    <cfset var arityCount = 1>
-        <cfset var argData = contents._getData()>
+        <cfset var argData = inputData._getData()>
 	    <cfset attr.func = arrayNew(1)>
 	    <cfset attr.comment = "">
                     
-        <cfset super.init("defn", arguments.contents, arguments.scope)>
+        <cfset super.init("defn", arguments.inputData, arguments.scope)>
         
 	    <cfreturn this>
 	</cffunction>
@@ -20,7 +20,7 @@
     <cffunction name="run">
         <cfargument name="bindMap" type="struct" required="true">
         
-		<cfset var main = variables.contents>
+		<cfset var main = variables.inputData>
         <cfset var structure = "">
         
         <cfif main.length() EQ 2>

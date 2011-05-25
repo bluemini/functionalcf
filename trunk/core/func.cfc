@@ -25,11 +25,11 @@
     --->
 	<cffunction name="init">
         <cfargument name="name">
-		<cfargument name="contents">
+		<cfargument name="inputData">
 		<cfargument name="scope">
         
 		<cfset variables.name = arguments.name>
-        <cfset variables.contents = arguments.contents>
+        <cfset variables.inputData = arguments.inputData>
 		<cfset variables.scope = arguments.scope>
 		
         <cfset variables.meta.symbolTable = StructNew()>

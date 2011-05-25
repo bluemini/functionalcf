@@ -7,35 +7,28 @@
     </cffunction>
 
     <cffunction name="init" returntype="any" output="true" >
-        <cfargument name="contents" type="any">
+        <cfargument name="inputData" type="any">
         <cfargument name="scope" type="any">
         
         <cfset var arg = "">
         <cfset var args = variables.functionDetail.args>
+        <cfset var argCount = 1>
         
-        <cfset super.init(this.name, arguments.contents, arguments.scope)>
+        <cfset super.init(this.name, arguments.inputData, arguments.scope)>
         
         <cfif url.debug>
             <strong>UserFunc</strong>.init()<br>
-            contents: #variables.contents.toString()#<br>
+            inputData: #variables.inputData.toString()# /#variables.inputData.getType()#<br>
+            args: #args.toString()# /#args.getType()#<br>
         </cfif>
         
         <!--- we need to associate the arg values provided in contents, with those defined in setup --->
         <cfset variables.argMap = StructNew()>
+        
         <!--- TODO: replace this iteration with a seq, once the codes written! --->
-        <cfloop condition="args.length() GT 0">
-            <cfset arg = args.first().data>
-			<cfset value = variables.contents.first()>
-			<!--- check if the value is actually a reference to a var... --->
-            <cfif StructKeyExists(variables.scope, value.data)>
-                <cfset value = variables.scope[value.data]>
-            <cfelse>
-                <cfoutput>ARGS: #args.toString()#</cfoutput>
-                <cfthrow message="unable to bind a value to #value.data#">
-            </cfif>
-            <cfset variables.argMap[arg] = value>
-            <cfset args = args.rest()>
-        </cfloop>
+        <cfif args.length() NEQ variables.inputData.length()>
+            <cfthrow message="unable to merge provided arguments with those required. Length mismatch">
+        </cfif>
         
         <cfif url.debug or true>
             <cfdump var="#argMap#" label="argMap (UserFunc/init)">
@@ -47,18 +40,43 @@
     <cffunction name="run">
         <cfargument name="bindMap" type="struct" required="true" hint="contains previous bindings from an enclosing function">
         
-        <cfif url.debug>
+        <cfset var handle = "">
+        <cfset var data = variables.inputData>
+        
+        <cfif url.debug OR url.explain>
             <strong>UserFunc</strong>.run()<br>
-            <cfoutput>FunctionDetail.ARGS: #variables.functionDetail.args.toString()#<br></cfoutput>
-            <cfoutput>FunctionDetail.BODY: #variables.functionDetail.body.toString()#<br></cfoutput>
-            <cfoutput>#variables.functionDetail.body.rest().toString()#<br></cfoutput>
+            <cfoutput>FunctionDetail.ARGS: #variables.functionDetail.args.toString()# /#variables.functionDetail.args.getType()#<br></cfoutput>
+            <cfoutput>FunctionDetail.BODY: #variables.functionDetail.body.toString()# /#variables.functionDetail.body.getType()#<br></cfoutput>
         </cfif>
-		
-		<cfif url.explain>
-			Running UserFunc whose:<br>
-			<cfoutput>ARGS: #variables.functionDetail.args.toString()#<br>
-			BODY: #variables.functionDetail.body.toString()# (type: #variables.functionDetail.body.getType()#)<br></cfoutput>
-		</cfif>
+        
+        <!--- blend the bindMap data, which contains the real values, with handlers specified in args --->
+        <cfloop array="#variables.functionDetail.args._getData()#" index="handle">
+            <cfif url.explain>
+                <cfoutput>handle:#handle.toString()#<br>
+                data.first(): #data.first().toString()#<br></cfoutput>
+            </cfif>
+            
+            <!--- if the refernced var is in global scope (variables) assign it --->
+            <cfif data.first().getType() IS "list">
+                <cfoutput>Running #data.first().toString()#<br></cfoutput>
+                <cfset argMap[handle.toString()] = data.first().run(bindMap, variables.scope)>
+            <cfelseif StructKeyExists(variables.scope, data.first().toString())>
+                <cfset argMap[handle.toString()] = variables.scope[data.first().toString()]>
+            <cfelseif StructKeyExists(bindMap, data.first().toString())>
+                <cfset argMap[handle.toString()] = bindMap[data.first().toString()]>
+            <cfelse>
+                DANG!
+                <cfdump var="#bindMap#">
+                <cfdump var="#variables.scope#">
+                <cfabort>
+            </cfif>
+            <cfset data = data.rest()>
+        </cfloop>
+        
+        <cfif url.explain>
+            <cfdump var="#bindMap#" label="bindMap (UserFunc/run)">
+            <cfdump var="#argMap#" label="argMap (UserFunc/run)">
+        </cfif>
         
         <!--- run the body of the function, passing in the argMap, so that calls can bind to vars as needed
         <cfif variables.functionDetail.body.rest().first().getType() IS "List">
@@ -79,7 +97,7 @@
     </cffunction>
     
     <cffunction name="getContents">
-        <cfreturn variables.contents>
+        <cfreturn variables.inputData>
     </cffunction>
 
 </cfcomponent>

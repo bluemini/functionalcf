@@ -30,8 +30,8 @@
         </cfif>
         
 		<!--- try and locate the key and return the value --->
-		<cfif StructKeyExists(variables.data, variables.contents.first().data)>
-			<cfreturn variables.data[variables.contents.first().data]>
+		<cfif StructKeyExists(variables.data, variables.inputData.first().data)>
+			<cfreturn variables.data[variables.inputData.first().data]>
 		<cfelse>
 			<cfreturn "nil">
 		</cfif>
@@ -62,9 +62,8 @@
     <cffunction name="parseInc" output="true">
         <cfargument name="char">
         
-        <cfset var finished = 0>
+        <cfset var finished = "">
         <cfset var result = 0>
-        <cfset var inString = false>
         
         Processing <cfoutput>'#char#'</cfoutput> in Map<br>
         
@@ -85,7 +84,6 @@
         <cfelseif char IS "'">
             New String<br>
             <cfset variables.dataType = CreateObject("component", "String")>
-            <cfset inString = true>
         <cfelseif NOT ListFind(" ,[,],(,),{,}", char)>
             Map/New Token<br>
             <cfset variables.dataType = CreateObject("component", "Token")>
@@ -101,7 +99,11 @@
         
         <!--- when a map self closes, it doesn't want an enclosing list to reuse the closing ) char,
             so it returns 2, asking the enclosing list to ignore the current value --->
-        <cfif char IS "]" AND finished NEQ 1>
+        <cfif char IS "]" AND finished EQ 2>
+            <cfset result = 1>
+        <cfelseif char IS "]" AND finished EQ 1>
+            <cfset result = 0>
+        <cfelseif char IS "]" AND finished IS "">
             <cfset result = 1>
         </cfif>
 

@@ -62,5 +62,8 @@
     <cffunction name="getType">
         <cfreturn "String">
     </cffunction>
+    <cffunction name="toString">
+        <cfreturn this.data>
+    </cffunction>
     
 </cfcomponent>

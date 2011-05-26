@@ -92,7 +92,11 @@
 
 <cfscript>
 // define first
-// $("defn first [colle] (core first colle)");
+$("defn first [coll] (core first coll)");
 
+// define ffirst
+$("defn ffirst [coll] ( first ( first coll))");
 
+// define fffirst
+$("defn fffirst [coll] ( first ( first (first coll)))");
 </cfscript>

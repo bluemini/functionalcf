@@ -51,8 +51,6 @@
             <cfset parseInc(mid(inputData, i, 1))>
         </cfloop>
         
-        <cfdump var="#variables.dataCore#"><cfabort>
-        
 		<!---
         <cfset contents = Replace(contents, ",", " ", "ALL")>
         
@@ -82,23 +80,10 @@
             <cfdump var="#bindMap#" label="bindMap (List/run)" expand="false">
         </cfif>
 
-        <!---
-        <!--- if the rest() of the data is runnable, we need to do that first --->
-        <cfif rest().first().getType() IS "list">
-            Run inner function: <cfoutput>#rest().first().toString()#<br></cfoutput>
-            <!--- <cfif rest().first().rest().first().getType() IS "token">
-                <cfoutput>#rest().first().rest().first().data#</cfoutput>
-            </cfif> --->
-            <cfset args = rest().first().run(bindMap, context)>
-            <cfdump var="#args#" label="resultant args from calling inner function">
-        </cfif>
-        --->
-        
         <cfif first().getType() IS "Token">
             <cfset fnName = first().data>
         <cfelse>
-			<cfdump var="#firstToken#">
-            <cfthrow message="the first element of a runnable list, must be a token">
+            <cfthrow message="the first element of a runnable list, must be a token. Ensure your first characters, within $("""") can be tokenised (ie not a structure or string)">
         </cfif>
         
         <!--- attempt to instantiate an object of type first param --->
@@ -215,26 +200,31 @@
     </cffunction>
     
     <!--- takes a char at a time and fills its internal array --->
-	<cffunction name="parseInc" output="true">
+	<cffunction name="parseInc" output="false">
         <cfargument name="char">
         
-        <cfset var finished = 0>
+        <cfset var finished = "">
         <cfset var result = 0>
         
         <cfif variables.dataFinalized><cfthrow message="list is immutable and cannot be modified"></cfif>
         
         <cfif StructKeyExists(variables, "dataType")>
+            List/Adding <cfoutput>'#char#' to #variables.dataType.getType()#</cfoutput><br>
             <cfset finished = variables.dataType.parseInc(char)>
         <cfelseif char IS "(">
+            List/New List
             <cfset variables.dataType = CreateObject("component", "List")>
         <cfelseif char IS "[">
             List/New Map<br>
             <cfset variables.dataType = CreateObject("component", "Map")>
         <cfelseif char IS "{">
+            List/New Set
             <cfset variables.dataType = CreateObject("component", "Set")>
         <cfelseif char IS "'">
+            List/New String
             <cfset variables.dataType = CreateObject("component", "String")>
         <cfelseif NOT ListFind(" ,[,],(,),{,}", char)>
+            List/New Token
             <cfset variables.dataType = CreateObject("component", "Token")>
             <cfset finished = variables.dataType.parseInc(char)>
         </cfif>
@@ -248,7 +238,11 @@
         
         <!--- when a list self closes, it doesn't want an enclosing list to reuse the closing ) char,
             so it returns 2, asking the enclosing list to ignore the current value --->
-        <cfif char IS ")" AND finished NEQ 1>
+        <cfif char IS ")" AND finished EQ 2>
+            <cfset result = 1>
+        <cfelseif char IS ")" AND finished EQ 1>
+            <cfset result = 0>
+        <cfelseif char IS ")" AND finished IS "">
             <cfset result = 1>
         </cfif>
 

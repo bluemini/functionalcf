@@ -105,5 +105,24 @@
         
 		<cfreturn arg.first()>
 	</cffunction>
+    
+    <cffunction name="println">
+        <cfargument name="bindMap">
+        <cfargument name="args">
+        
+        <cfset resp = "">
+        
+        <cfdump var="#bindMap#">
+        <cfdump var="#args.toString()#">
+
+        <!--- fetch the first item from the args and resolve any local bindings --->
+        <cfset var arg = args.first()>
+        
+        <cfif StructKeyExists(bindMap, args.first().toString())>
+            <cfset resp = ListAppend(resp, bindMap[args.first().toString()], " ")>
+        </cfif>
+        
+        <cfreturn resp>
+    </cffunction>
 
 </cfcomponent>

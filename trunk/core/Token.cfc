@@ -39,13 +39,14 @@
         <cfreturn variables.val>
     </cffunction>
     
-    <cffunction name="equals" returntype="TBoolean">
+    <cffunction name="equals" returntype="boolean">
         <cfargument name="compareTo" type="any">
         <cfif isSimpleValue(compareTo) AND compareTo EQ variables.val>
-            <cfset resp = CreateObject("component", "TBoolean").init(true)>
+            <cfset resp = true>
         <cfelse>
-            <cfset resp = CreateObject("component", "TBoolean").init(false)>
+            <cfset resp = false>
         </cfif>
+        <cfreturn resp>
     </cffunction>
     <cffunction name="compareTo" returntype="TBoolean">
         <cfif isNumeric(variables.val)>

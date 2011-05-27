@@ -52,6 +52,7 @@
         <cfset var handle = "">
         <cfset var data = variables.inputData>
         <cfset var dataFirst = "">
+        <cfset var condArgs = false>
         
         <cfif url.debug OR url.explain>
             <strong>UserFunc</strong>.run()<br>
@@ -62,50 +63,49 @@
         <!--- blend the bindMap data, which contains the real values, with handlers specified in args --->
         <cfloop array="#variables.functionDetail.args._getData()#" index="handle">
             
+            <!--- if the handle is '&' then we need to skip to the next handle and setup a seq to record the remaining input values --->
+            <cfif handle.equals("&")>
+                <cfset condArgs = true>
+                <cfcontinue/>
+            </cfif>
+            
+            <!--- fetch the next data value from the inputData list --->
             <cfset dataFirst = data.first()>
             
             <cfif url.explain>
                 <cfoutput>handle:#handle.toString()#<br>
-                data.first(): #dataFirst.toString()#<br></cfoutput>
+                data.first(): #dataFirst.toString()#<br>
+                condArgs: #condArgs#<br></cfoutput>
             </cfif>
-            
-            <cftry>
-                <cfset n = dataFirst.getType()>
-                <cfcatch>
-                    <cfoutput>FunctionDetail.ARGS: #variables.functionDetail.args.toString()# /#variables.functionDetail.args.getType()#<br></cfoutput>
-                    <cfoutput>FunctionDetail.BODY: #variables.functionDetail.body.toString()# /#variables.functionDetail.body.getType()#<br></cfoutput>
-                    <cfdump var="#data.toString()#">
-                    <cfdump var="#dataFirst#">
-                    <cfabort>
-                </cfcatch>
-            </cftry>
             
             <!--- if the refernced var is in global scope (variables) assign it --->
-            <cfif dataFirst.getType() IS "list">
-                <cfif url.explain>
-                    <cfoutput>Running #dataFirst.toString()#<br></cfoutput>
-                </cfif>
-                <!--- the use of an intermediary variable seemed to be necessary for Railo to store the correct value --->
-                <cfset resp = dataFirst.run(bindMap, variables.scope)>
-                <cfif url.explain>
-                    <cfoutput>returned #resp.toString()#</cfoutput><br>
-                </cfif>
-                <cfset argMap[handle.toString()] = resp>
-            <cfelseif StructKeyExists(variables.scope, dataFirst.toString())>
-                <cfset argMap[handle.toString()] = variables.scope[data.first().toString()]>
-            <cfelseif StructKeyExists(bindMap, dataFirst.toString())>
-                <cfset argMap[handle.toString()] = bindMap[data.first().toString()]>
-            <cfelseif data.first().getType() IS "String">
-                <cfset argMap[handle.toString()] = dataFirst.toString()>
+            <cfset boundValue = evalboundvalue(data, dataFirst, bindMap)>
+            
+            <cfif condArgs>
+                <cfset condArgsArray = ArrayNew(1)>
+                <cfloop condition="boundValue IS NOT ''">
+                    <cfset ArrayAppend(condArgsArray, boundValue)>
+                    <cfset data = data.rest()>
+                    <cfset dataFirst = data.first()>
+                    <cfset boundValue = evalBoundValue(data, dataFirst, bindMap)>
+                </cfloop>
+                <cfset argMap[handle.toString()] = CreateObject("List").setData(condArgsArray)>
             <cfelse>
-                DANG! trying to resolve <cfoutput>#dataFirst.toString()# without success</cfoutput>
-                <!--- <cfdump var="#bindMap#">
-                <cfdump var="#variables.scope#">
-                <cfthrow> --->
+                <cfset argMap[handle.toString()] = boundValue>
             </cfif>
+            
+            <!--- take the current data off the top of the list and return the rest --->
             <cfset data = data.rest()>
+            
         </cfloop>
         
+        <!--- if the rest is NOT empty, then we haven't passed in the correct number of args --->
+        <cfif NOT data.isEmpty()>
+            <cfdump var="#data#">
+            <cfoutput>#data.toString()#</cfoutput>
+            <cfthrow message="arity error..">
+        </cfif>
+
         <cfif url.explain>
             <cfdump var="#bindMap#" label="bindMap (UserFunc/run)" expand="false">
             <cfdump var="#argMap#" label="argMap (UserFunc/run)" expand="false">
@@ -127,6 +127,56 @@
         <cfset resp = variables.functionDetail.body.run(variables.argMap, variables.scope)>
         
         <cfreturn resp>
+    </cffunction>
+
+    <cffunction name="evalBoundValue" access="private">
+        <cfargument name="data">
+        <cfargument name="dataFirst">
+        <cfargument name="bindMap">
+        
+        <cfset var resp = "">
+        <cfset var boundValue = "">
+        <cfset var n = "">
+        
+        <!--- if the dataFirst symbol is not a FCF object, throw an error --->
+        <cftry>
+            <cfset n = dataFirst.getType()>
+            <cfcatch>
+                <!--- 
+                Not enough terms passed in to satisfy the arguments defined.<br>
+                <cfoutput>FunctionDetail.ARGS: #variables.functionDetail.args.toString()# /#variables.functionDetail.args.getType()#<br></cfoutput>
+                <cfoutput>FunctionDetail.BODY: #variables.functionDetail.body.toString()# /#variables.functionDetail.body.getType()#<br></cfoutput>
+                <cfdump var="#data.toString()#">
+                <cfdump var="#dataFirst#">
+                --->
+                <cfreturn "">
+            </cfcatch>
+        </cftry>
+        
+        <cfif dataFirst.getType() IS "list">
+            <cfif url.explain>
+                <cfoutput>Running #dataFirst.toString()#<br></cfoutput>
+            </cfif>
+            <!--- the use of an intermediary variable seemed to be necessary for Railo to store the correct value --->
+            <cfset resp = dataFirst.run(bindMap, variables.scope)>
+            <cfif url.explain>
+                <cfoutput>returned #resp.toString()#</cfoutput><br>
+            </cfif>
+            <cfset boundValue = resp>
+        <cfelseif StructKeyExists(variables.scope, dataFirst.toString())>
+            <cfset boundValue = variables.scope[data.first().toString()]>
+        <cfelseif StructKeyExists(bindMap, dataFirst.toString())>
+            <cfset boundValue = bindMap[data.first().toString()]>
+        <cfelseif data.first().getType() IS "String">
+            <cfset boundValue = dataFirst.toString()>
+        <cfelse>
+            DANG! trying to resolve <cfoutput>#dataFirst.toString()# without success</cfoutput>
+            <!--- <cfdump var="#bindMap#">
+            <cfdump var="#variables.scope#">
+            <cfthrow> --->
+        </cfif>
+        
+        <cfreturn boundValue>
     </cffunction>
     
     <cffunction name="getContents">

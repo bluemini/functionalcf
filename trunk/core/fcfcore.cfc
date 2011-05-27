@@ -6,7 +6,7 @@
         
         <cfset super.init("fcfcore", arguments.inputData, arguments.scope)>
         
-        <cfif url.debug or url.explain>
+        <cfif url.explain>
             "Contents" passed to fcfcore: <cfoutput>#variables.inputData.toString()#</cfoutput>
         </cfif>
         
@@ -106,7 +106,7 @@
 		<cfreturn arg.first()>
 	</cffunction>
     
-    <cffunction name="println">
+    <cffunction name="out">
         <cfargument name="bindMap">
         <cfargument name="args">
         
@@ -116,11 +116,23 @@
         <cfdump var="#args.toString()#">
 
         <!--- fetch the first item from the args and resolve any local bindings --->
-        <cfset var arg = args.first()>
+        <cfset var arg = args.first().toString()>
         
-        <cfif StructKeyExists(bindMap, args.first().toString())>
-            <cfset resp = ListAppend(resp, bindMap[args.first().toString()], " ")>
-        </cfif>
+        <cfloop condition="arg IS NOT ''">
+            <cfif StructKeyExists(bindMap, arg)>
+                <cftry>
+                    <cfset boundValue = bindMap[arg]>
+                    <cfif isSimpleValue(boundValue)>
+                        <cfset resp = ListAppend(resp, boundValue, " ")>
+                    <cfelseif boundValue.getType() IS "List">
+                        <cfset resp = ListAppend(resp, boundValue.toString(" "), " ")>
+                    </cfif>
+                    <cfcatch><cfdump var="#bindMap#"></cfcatch>
+                </cftry>
+            </cfif>
+            <cfset args = args.rest()>
+            <cfset arg = args.first().toString()>
+        </cfloop>
         
         <cfreturn resp>
     </cffunction>

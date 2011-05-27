@@ -14,7 +14,7 @@
         <cfreturn variables.val>
     </cffunction>
 	
-    <cffunction name="equals" returntype="TBoolean">
+    <cffunction name="equals" returntype="boolean">
         <cfargument name="compareTo" type="any">
         <cfif isSimpleValue(compareTo) AND compareTo EQ variables.val>
             <cfset resp = CreateObject("component", "TBoolean").init(true)>

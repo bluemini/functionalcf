@@ -265,12 +265,12 @@
         <cfreturn resp>
     </cffunction>
     
-	<cffunction name="onMissingMethod" access="public" returntype="any">
-		<cfargument name="methodName" required="true">
-		<cfset var searchForKey = structFind(variables.data, arguments.methodName)>
-		<cfdump var="#searchForKey#"><cfabort>
-	</cffunction>
-
-
-
+    <cffunction name="isEmpty" returntype="boolean">
+        <cfif ArrayLen(variables.dataCore) EQ 0>
+            <cfreturn true>
+        <cfelse>
+            <cfreturn false>
+        </cfif>
+    </cffunction>
+    
 </cfcomponent>

@@ -84,6 +84,7 @@
         </cfif>
         
         <!--- if the binding resolved to var/symbol, we must resolve that too --->
+        <cftry><cfset arg.getType()><cfcatch><cfdump var="#arg#"><cfabort></cfcatch></cftry>
         <cfif arg.getType() IS "token">
             <cfif StructKeyExists(variables.scope, arg.data)>
                 <cfset arg = variables.scope[arg.data]>
@@ -114,8 +115,10 @@
         
         <cfset resp = "">
         
-        <cfdump var="#bindMap#">
-        <cfdump var="#args.toString()#">
+        <cfif url.explain>
+            <cfdump var="#bindMap#" label="bindMap (FCFCore/out)">
+            <cfdump var="#args.toString()#" label="args (FCFCore/out)">
+        </cfif>
 
         <!--- fetch the first item from the args and resolve any local bindings --->
         <cfset var arg = args.first().toString()>

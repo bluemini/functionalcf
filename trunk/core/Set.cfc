@@ -11,7 +11,10 @@
 
 	<cfset variables.data = "">
     <cfset variables.meta = StructNew()>
-
+    
+    <!--- define the closing char for this data type --->
+    <cfset variables.closingChar = "}">
+    
 	<cffunction name="init">
 		<cfargument name="contents" type="any">
         
@@ -133,7 +136,10 @@
         <cfreturn this>
     </cffunction>
     
-	
+    <cffunction name="getType">
+        <cfreturn "Set">
+    </cffunction>
+    	
 	<cffunction name="onMissingMethod" access="public" returntype="any">
 		<cfargument name="methodName" required="true">
 		<cfset var searchForKey = structFind(variables.data, arguments.methodName)>

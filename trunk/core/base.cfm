@@ -14,12 +14,12 @@
 	<cfset resp = "">
 	
 	<cfif arrayLen(arguments) NEQ 1 OR NOT IsSimpleValue(arguments[1])>
-		<cfoutput>FunctionalCF - The argument to $() MUST be a string.</cfoutput>
+		<cfoutput>FunctionalCF - The argument to $() MUST be a single string.</cfoutput>
 	<cfelse>
     
         <!--- Since FunctionCF is drawing on the Lisp idea, where even the program code is a list,
         we need to create a list from the body text --->
-        <cfset baseList = createObject("component", "List").init(arguments[1])>
+        <cfset baseList = CreateObject("component", "List").init(arguments[1])>
         
         <!--- run the list, which will perform the primary top level function --->
         <cfset out = baseList.run(StructNew(), variables)>

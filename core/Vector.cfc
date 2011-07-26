@@ -6,7 +6,7 @@
     <cfset variables.dataCore = ArrayNew(1)>
     
     <!--- define the closing char for this data type --->
-    <cfset variables.closingChar = "}">
+    <cfset variables.closingChar = "]">
         
 	<!--- creates a map object, it expects a CF struct --->
 	<cffunction name="init" returntype="any" output="true">
@@ -80,7 +80,7 @@
             <cfset variables.dataType = CreateObject("component", "List")>
         <cfelseif char IS "[">
             Map/New Vector<br>
-            <cfset variables.dataType = CreateObject("component", "Vector")>
+            <cfset variables.dataType = CreateObject("component", "Map")>
         <cfelseif char IS "{">
             New Set<br>
             <cfset variables.dataType = CreateObject("component", "Set")>
@@ -115,7 +115,7 @@
     </cffunction>
     
     <cffunction name="getType">
-        <cfreturn "Map">
+        <cfreturn "Vector">
     </cffunction>
     <cffunction name="toString">
         <cfset var internals = _getData()>

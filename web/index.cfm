@@ -1,0 +1,3 @@
+<cfscript>
+$("doo");
+</cfscript>

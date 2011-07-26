@@ -5,7 +5,7 @@
 <h3>Define an arity based greeting function</h3>
 
 <p>$("defn greeting [username] (pr 'Bobbins, ' username)")</p>
-<cfset $("defn greeting [username] (pr 'Bobbins, ' username)")>
+<cfset $('defn greeting [username] (pr "Bobbins, " username)')>
 
 <h3>define coll as a collection $("def coll [1 2]")</h3>
 <cfset $("def coll [1 2]")>

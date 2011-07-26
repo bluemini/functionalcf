@@ -1,9 +1,12 @@
-<cfcomponent implements="ICompare">
+<cfcomponent extends="cfnDataType" implements="ICompare">
     
     <cfset variables.val = "">
     <cfset variables.dataFinalized = false>
     <cfset this.data = "">
 
+    <!--- define the closing char for this data type --->
+    <cfset variables.closingChar = """">
+    
     <cffunction name="init">
         <cfargument name="val" type="string">
         <cfset variables.val = arguments.val>
@@ -49,7 +52,7 @@
         
         <cfif variables.dataFinalized><cfthrow message="list is immutable and cannot be modified"></cfif>
         
-        <cfif char IS NOT "'">
+        <cfif char IS NOT """">
             <cfset variables.val &= char>
             <cfset this.data = variables.val>
         <cfelse>

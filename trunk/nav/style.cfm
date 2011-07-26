@@ -1,6 +1,7 @@
 <style>
 body {
 	font-size: 0.85em;
+    padding: 5px !important;
 }
 h1,h2,h3,h4,h5,h6,p,body {
 	margin: 0;

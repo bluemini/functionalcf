@@ -1,13 +1,13 @@
 <cfcomponent extends="func" implements="IRunnable">
 
     <cffunction name="init" returntype="any" output="true">
-        <cfargument name="contents" type="any" hint="accepts a list object of the function body..">
+        <cfargument name="inputData" type="any" hint="accepts a list object of the function body..">
         <cfargument name="scope" default="this" type="any">
         
-        <cfset super.init("Lt", arguments.contents, this)>
+        <cfset super.init("Lt", arguments.inputData, this)>
         
         <!--- ensure that there are at least two entries --->
-        <cfif contents.length() LT 2>
+        <cfif variables.inputData.length() LT 2>
             <cfthrow message="LT requires at least one argument (master [first compare [second compare]])">
         </cfif>
         
@@ -20,8 +20,8 @@
     <cffunction name="run">
         <cfargument name="bindMap" type="struct" required="true">
         <!--- get the response from running the first argument --->
-        <cfset var arg = variables.contents.first()>
-        <cfset var rest = variables.contents.rest()>
+        <cfset var arg = variables.inputData.first()>
+        <cfset var rest = variables.inputData.rest()>
         <cfset var mainArg = "">
         <cfset var compArg = "">
         <cfset var result = true>

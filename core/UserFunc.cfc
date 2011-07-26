@@ -94,6 +94,10 @@
                 <cfset argMap[handle.toString()] = boundValue>
             </cfif>
             
+            <cfif url.explain>
+                <cfoutput>Bound value #boundValue# to #handle.toString()#<br></cfoutput>
+            </cfif>
+            
             <!--- take the current data off the top of the list and return the rest --->
             <cfset data = data.rest()>
             
@@ -155,12 +159,13 @@
         
         <cfif dataFirst.getType() IS "list">
             <cfif url.explain>
-                <cfoutput>Running #dataFirst.toString()#<br></cfoutput>
+                <cfoutput>Running #dataFirst.toString()#<br>
+                <div style="border:1px solid green; padding: 5px"></cfoutput>
             </cfif>
             <!--- the use of an intermediary variable seemed to be necessary for Railo to store the correct value --->
             <cfset resp = dataFirst.run(bindMap, variables.scope)>
             <cfif url.explain>
-                <cfoutput>returned #resp.toString()#</cfoutput><br>
+                <cfoutput></div>returned #resp.toString()#</cfoutput><br>
             </cfif>
             <cfset boundValue = resp>
         <cfelseif StructKeyExists(variables.scope, dataFirst.toString())>
@@ -174,6 +179,7 @@
             <!--- <cfdump var="#bindMap#">
             <cfdump var="#variables.scope#">
             <cfthrow> --->
+            <cfset boundValue = dataFirst.toString()>
         </cfif>
         
         <cfreturn boundValue>

@@ -7,18 +7,18 @@
 
 <h3>Try using a FCF function as a key</h3>
 <pre>
-&lt;cfset $(defn, "myobj", "[name]", [println, "hello, ", "[name]"])>
-&lt;cfset $(def, "inventors", [myobj, "McCarthy", "Closure", "Hickey"])>
+&lt;cfset $("defn myobj [name] (pr 'hello, ' name")>
+&lt;cfset $("def inventors (myobj 'McCarthy' 'Closure' 'Hickey')")>
 </pre>
-<cfset $(defn, "myobj", "[name]", [println, "hello, ", "[name]"])>
-<cfset $(def, "inventors", [myobj, "McCarthy", "Closure", "Hickey"])>
-<cfset $(inventors, myObj)>
+<cfset $("defn myobj [name] (pr 'hello, ' name)")>
+<cfset $("def inventors (myobj 'McCarthy' 'Closure' 'Hickey')")>
+
+<div style="color:red; font-weight:bold">TODO: allow a list to lookup an element and return it...</div>
+<!--- <cfset $("inventors myobj")> --->
 
 <h3>To be sure, demonstrate that myObj is a real FCF</h3>
-<code>&lt;cfset $(myObj, "Jerry")><br></code>
-<cfset $(myObj, "Jerry")>
+<code>&lt;cfset $("myObj 'Jerry'")><br></code>
+<cfset $("myObj 'Jerry'")>
 
 <h3>Setup a map with keywords</h3>
-<cfset $(def, "inventors", [":Lisp", "McCarthy", ":Closure", "Hickey"])>
-
-<cfset $()>
+<cfset $("def inventors [:Lisp 'McCarthy' :Closure 'Hickey']")>

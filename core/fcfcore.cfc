@@ -31,7 +31,7 @@
 		<cfreturn this[variables.f](arguments.bindMap, variables.contents.rest())>
          --->
         <cfset var f = this[variables.f]>
-		<cfif url.explain>
+		<cfif url.explain OR url.debug>
 			<cfoutput>Running fcfcore, function: '#variables.f#', arguments: #variables.inputData.rest().toString()#</cfoutput>
 			<cfdump var="#variables.inputData.rest()#">
 		</cfif>
@@ -125,9 +125,86 @@
                     <cfif isSimpleValue(boundValue)>
                         <cfset resp = ListAppend(resp, boundValue, " ")>
                     <cfelseif boundValue.getType() IS "List">
-                        <cfset resp = ListAppend(resp, boundValue.toString(" "), " ")>
+                        <cfset arg = boundValue.first()>
+                        <cfloop condition="arg IS NOT ''">
+                            <cfif isSimpleValue(arg)>
+                                <cfset resp = ListAppend(resp, arg, " ")>
+                            <cfelseif arg.getType() IS "Token">
+                                <cfset resp = ListAppend(resp, arg.toString(), " ")>
+                            <cfelse>
+                                <cfthrow message="rest isn't a token">
+                            </cfif>
+                            <cfset boundValue = boundValue.rest()>
+                            <cfset arg = boundValue.first()>
+                        </cfloop>
                     </cfif>
                     <cfcatch><cfdump var="#bindMap#"></cfcatch>
+                </cftry>
+            </cfif>
+            <cfset args = args.rest()>
+            <cfset arg = args.first().toString()>
+        </cfloop>
+        
+        <cfreturn resp>
+    </cffunction>
+
+    <cffunction name="sub">
+        <cfargument name="bindMap">
+        <cfargument name="args">
+        
+        <cfset resp = "">
+        
+        <cfdump var="#bindMap#">
+        <cfdump var="#args.toString()#">
+
+        <!--- fetch the first item from the args and resolve any local bindings --->
+        <cfset var arg = args.first().toString()>
+        
+        <cfloop condition="arg IS NOT ''">
+            <cfif StructKeyExists(bindMap, arg)>
+                <cftry>
+                    <cfset boundValue = bindMap[arg]>
+                    <cfif isSimpleValue(boundValue) AND isNumeric(boundValue)>
+                        <cfif resp IS "">
+                            <cfset resp = boundValue>
+                        <cfelse>
+                            <cfset resp = resp - boundValue>
+                        </cfif>
+                    <cfelse>
+                        <cfthrow message="rest isn't a token">
+                    </cfif>
+                    <cfcatch></cfcatch>
+                </cftry>
+            </cfif>
+            <cfset args = args.rest()>
+            <cfset arg = args.first().toString()>
+        </cfloop>
+        
+        <cfreturn resp>
+    </cffunction>
+
+    <cffunction name="sum">
+        <cfargument name="bindMap">
+        <cfargument name="args">
+        
+        <cfset resp = 0>
+        
+        <cfdump var="#bindMap#">
+        <cfdump var="#args.toString()#">
+
+        <!--- fetch the first item from the args and resolve any local bindings --->
+        <cfset var arg = args.first().toString()>
+        
+        <cfloop condition="arg IS NOT ''">
+            <cfif StructKeyExists(bindMap, arg)>
+                <cftry>
+                    <cfset boundValue = bindMap[arg]>
+                    <cfif isSimpleValue(boundValue) AND isNumeric(boundValue)>
+                        <cfset resp += boundValue>
+                    <cfelse>
+                        <cfthrow message="rest isn't a token">
+                    </cfif>
+                    <cfcatch></cfcatch>
                 </cftry>
             </cfif>
             <cfset args = args.rest()>

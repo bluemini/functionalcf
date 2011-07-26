@@ -1,4 +1,7 @@
 <cfcomponent>
+    
+    <cfsetting requesttimeout="30">
+    
 	<cfinclude template="./core/base.cfm">
 	
 	<cffunction name="onRequestStart">

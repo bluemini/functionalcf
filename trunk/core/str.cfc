@@ -12,7 +12,7 @@
     <cffunction name="run">
         <cfargument name="bindMap" type="struct" required="true">
         <!--- get the response from running the first argument --->
-        <cfset var arg = variables.contents>
+        <cfset var arg = variables.inputData>
         <cfset var mainArg = "">
         <cfset var compArg = "">
         <cfset var result = "">
@@ -29,7 +29,7 @@
                 <cfelseif StructKeyExists(arguments.bindMap, mainArg) AND isSimpleValue(arguments.bindMap[mainArg])>
                     <cfset mainArg = arguments.bindMap[mainArg]>
                 <cfelse>
-                    <cfthrow message="arguments to LT must be numeric entities or a binding that maps to one."
+                    <cfthrow message="arguments to STR must be simple values or a binding that maps to one."
                             detail="unable to determine a value for token: #mainArg#">
                 </cfif>
             <cfelseif StructKeyExists(mainArg, "getType") AND mainArg.getType() IS "string">

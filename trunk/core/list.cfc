@@ -27,9 +27,9 @@
 		<cfif isSimpleValue(arguments.inputData)>
 		<cfelse>
 			<cftry>
-				<cfif arguments.contents.getType() IS "List">
-					<cfdump var="#contents._getData()#" label="arguments inputData data (list/init)">
-					<cfreturn setData(contents._getData())>
+				<cfif arguments.inputData.getType() IS "List">
+					<cfdump var="#arguments.inputData._getData()#" label="arguments inputData data (list/init)">
+					<cfreturn setData(arguments.inputData._getData())>
 				<cfelse>
 					Not a list...<cfabort>
 				</cfif>
@@ -70,7 +70,7 @@
     arguments. Otherwise, we return it as a list. --->
 	<cffunction name="run">
         <cfargument name="bindMap" type="struct" required="true">
-        <cfargument name="context" required="false" default="#this#">
+        <cfargument name="context" required="true" default="#this#">
         
 		<cfset var firstToken = "">
         <cfset var fn = "">
@@ -124,6 +124,7 @@
             
         <cfelse>
             <cfdump var="#context#" label="context (list/run)" expand="false">
+            <cfdump var="#fn#" label="LIST: fn">
             <cfthrow message="function #fnName# cannot be found">
             <cfset resp = print()>
             <cfabort>

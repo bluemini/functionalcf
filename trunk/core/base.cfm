@@ -90,7 +90,7 @@
 </cffunction>
 
 
-<cfscript>
+<cfsilent><cfscript>
 // define first
 $("defn first [coll] (core first coll)");
 
@@ -99,4 +99,11 @@ $("defn ffirst [coll] ( first ( first coll))");
 
 // define fffirst
 $("defn fffirst [coll] ( first ( first (first coll)))");
-</cfscript>
+
+// define pr
+$("defn pr [string & more] (core out string & more)");
+
+// define sub/sum
+$("defn sub [value-1 value-2 & more] (core sub value-1 value-2 & more)");
+$("defn sum [value-1 value-2 & more] (core sum value-1 value-2 & more)");
+</cfscript></cfsilent>

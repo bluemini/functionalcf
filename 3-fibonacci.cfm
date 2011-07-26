@@ -1,13 +1,10 @@
 <!--- test the if form --->
 <cfset $("if false (pr 'hello') (pr 'it was false ::')")>
 
+<!---
 <p>Next 2 results should be: 4 and 16</p>
 <cfset $("sum 1 3")>
 <cfset $("sum 4 12")>
-
-<cfabort>
-<!---
-
 
 <p>Next 2 results should be: 2 and -8</p>
 <cfset $("sub 5 3")>
@@ -15,14 +12,14 @@
 --->
 
 <!---
-1
-1
-2
-3
-5
-8
-13
-21
+0   1
+1   1
+2   2
+3   3
+4   5
+5   8
+6   13
+7   21
 --->
 
 <!--- fibonacci uses recursion --->

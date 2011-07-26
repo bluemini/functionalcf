@@ -31,10 +31,12 @@
 		<cfreturn this[variables.f](arguments.bindMap, variables.contents.rest())>
          --->
         <cfset var f = this[variables.f]>
-		<cfif url.explain OR url.debug>
+		
+        <cfif url.explain OR url.debug>
 			<cfoutput>Running fcfcore, function: '#variables.f#', arguments: #variables.inputData.rest().toString()#</cfoutput>
 			<cfdump var="#variables.inputData.rest()#">
 		</cfif>
+        
         <cfreturn f(arguments.bindMap, variables.inputData.rest())>
     </cffunction>
 	
@@ -154,8 +156,10 @@
         
         <cfset resp = "">
         
-        <cfdump var="#bindMap#">
-        <cfdump var="#args.toString()#">
+        <cfif url.explain>
+            <cfdump var="#bindMap#" label="bindMap (FCFCore/sub)">
+            <cfdump var="#args.toString()#" label="args (FCFCore/sub)">
+        </cfif>
 
         <!--- fetch the first item from the args and resolve any local bindings --->
         <cfset var arg = args.first().toString()>
@@ -189,8 +193,10 @@
         
         <cfset resp = 0>
         
-        <cfdump var="#bindMap#">
-        <cfdump var="#args.toString()#">
+        <cfif url.explain>
+            <cfdump var="#bindMap#" label="bindMap (FCFCore/sum)">
+            <cfdump var="#args.toString()#" label="args (FCFCore/sum)">
+        </cfif>
 
         <!--- fetch the first item from the args and resolve any local bindings --->
         <cfset var arg = args.first().toString()>

@@ -108,7 +108,8 @@
         <!--- if the function is a UserFunc object, then call it here --->
         <cfelseif StructKeyExists(context, fnName) AND isObject(context[fnName])>
             <cfif url.debug><cfoutput><p>--- LIST: creating custom function as UserFunc Object <strong>#fnName#</strong> ---</p></cfoutput></cfif>
-            <cfset resp = context[fnName].init(rest(), context).run(arguments.bindMap)>
+            <cfset fn = Duplicate(context[fnName])>
+            <cfset resp = fn.init(rest(), context).run(arguments.bindMap)>
         
         <!--- if we are calling native CF functions --->
         <cfelseif isSimpleValue(fnName) AND fnName IS ".">

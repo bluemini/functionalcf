@@ -1,8 +1,14 @@
 <cfcomponent extends="func" implements="IRunnable">
     
+    <!--- we need to associate the arg values provided in contents, with those defined in setup --->
+    <cfset variables.argMap = StructNew()>
+
     <cffunction name="setup">
         <cfargument name="functionDetail">
+        
         <cfset variables.functionDetail = arguments.functionDetail>
+        <cfset variables.localArgs = StructNew()>
+        
         <cfreturn this>
     </cffunction>
 
@@ -21,9 +27,6 @@
             inputData: #variables.inputData.toString()# /#variables.inputData.getType()#<br>
             args: #args.toString()# /#args.getType()#<br>
         </cfif>
-        
-        <!--- we need to associate the arg values provided in contents, with those defined in setup --->
-        <cfset variables.argMap = StructNew()>
         
         <!---
         <!--- count how many of the inputData fields are tokens that need resolving --->
@@ -58,6 +61,7 @@
             <strong>UserFunc</strong>.run()<br>
             <cfoutput>FunctionDetail.ARGS: #variables.functionDetail.args.toString()# /#variables.functionDetail.args.getType()#<br></cfoutput>
             <cfoutput>FunctionDetail.BODY: #variables.functionDetail.body.toString()# /#variables.functionDetail.body.getType()#<br></cfoutput>
+            <cfdump var="#argMap#" label="argMap (UserFunc/run start of method)" expand="true">
         </cfif>
         
         <!--- blend the bindMap data, which contains the real values, with handlers specified in args --->
@@ -128,12 +132,15 @@
             </cfif>
         </cfif> --->
         
-        <cfset resp = variables.functionDetail.body.run(variables.argMap, variables.scope)>
+        <cfset copyArgMap = Duplicate(variables.argMap)>
+        <cfif url.explain><div style="border-width:5px 1px 1px; border-style: solid; border-color: blue; padding: 5px; margin: 5px 0"></cfif>
+            <cfset resp = variables.functionDetail.body.run(copyArgMap, variables.scope)>
+        <cfif url.explain></div></cfif>
         
         <cfreturn resp>
     </cffunction>
 
-    <cffunction name="evalBoundValue" access="private">
+    <cffunction name="evalBoundValue" access="private" output="false">
         <cfargument name="data">
         <cfargument name="dataFirst">
         <cfargument name="bindMap">
@@ -160,7 +167,7 @@
         <cfif dataFirst.getType() IS "list">
             <cfif url.explain>
                 <cfoutput>Running #dataFirst.toString()#<br>
-                <div style="border:1px solid green; padding: 5px"></cfoutput>
+                <div style="border-width:5px 1px 1px; border-style: solid; border-color: green; padding: 5px; margin: 5px 0"></cfoutput>
             </cfif>
             <!--- the use of an intermediary variable seemed to be necessary for Railo to store the correct value --->
             <cfset resp = dataFirst.run(bindMap, variables.scope)>
@@ -175,7 +182,7 @@
         <cfelseif data.first().getType() IS "String">
             <cfset boundValue = dataFirst.toString()>
         <cfelse>
-            DANG! trying to resolve <cfoutput>#dataFirst.toString()# without success</cfoutput>
+            DANG! trying to resolve <cfoutput>#dataFirst.toString()# without success<br></cfoutput>
             <!--- <cfdump var="#bindMap#">
             <cfdump var="#variables.scope#">
             <cfthrow> --->

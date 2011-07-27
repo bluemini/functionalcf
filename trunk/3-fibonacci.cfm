@@ -25,4 +25,8 @@
 <!--- fibonacci uses recursion --->
 <cfset $("defn fib [num] (if (LT num 2) 1 (sum (fib (sub num 2)) (fib (sub num 1))))")>
 
-<cfset $("fib 4")>
+<h3>$("fib 4")</h3>
+<cfset $("core time (fib 4)")>
+
+<h3>timing $("fib 6")</h3>
+<cfset $("core time (fib 6)")>

@@ -12,7 +12,7 @@
 	    <cfset attr.func = arrayNew(1)>
 	    <cfset attr.comment = "">
                     
-        <cfset super.init("defn", arguments.inputData, arguments.scope)>
+        <cfset super.init("def", arguments.inputData, arguments.scope)>
         
 	    <cfreturn this>
 	</cffunction>

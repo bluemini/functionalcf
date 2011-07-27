@@ -23,5 +23,6 @@
 	<cfelse>
 		<a href="./#sortedfiles.name[1]#" style="float: right">start</a>
 	</cfif>
+    <cfif StructKeyExists(request, "time")>Main page run in #request.time#ms</cfif>
 	<div style="clear:both"></div>
 </div></cfoutput>

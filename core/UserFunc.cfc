@@ -28,24 +28,6 @@
             args: #args.toString()# /#args.getType()#<br>
         </cfif>
         
-        <!---
-        <!--- count how many of the inputData fields are tokens that need resolving --->
-        <cfloop array="#variables.inputData._getData()#" index="type">
-            <cfif type.getType() IS "Token" OR type.getType() IS "String"><cfset argTokens++></cfif>
-        </cfloop>
-        
-        <!--- TODO: replace this iteration with a seq, once the codes written! --->
-        <cfif args.length() GT argTokens>
-            <cfdump var="#args._getData()#" label="args">
-            <cfdump var="#variables.inputData._getData()#" label="inputData">
-            <cfthrow message="unable to merge provided arguments (#args.length()#) with those required (#argTokens#). Length mismatch">
-        </cfif>
-        
-        <cfif url.debug>
-            <cfdump var="#argMap#" label="argMap (UserFunc/init)">
-        </cfif>
-        --->
-        
         <cfreturn this>
     </cffunction>
     
@@ -99,7 +81,7 @@
             </cfif>
             
             <cfif url.explain>
-                <cfoutput>Bound value #boundValue# to #handle.toString()#<br></cfoutput>
+                <cfoutput>Bound value #boundValue.toString()# to #handle.toString()#<br></cfoutput>
             </cfif>
             
             <!--- take the current data off the top of the list and return the rest --->
@@ -134,7 +116,7 @@
         
         <cfset copyArgMap = Duplicate(variables.argMap)>
         <cfif url.explain><div style="border-width:5px 1px 1px; border-style: solid; border-color: blue; padding: 5px; margin: 5px 0"></cfif>
-            <cfset resp = variables.functionDetail.body.run(copyArgMap, variables.scope)>
+            <cfset resp = variables.functionDetail.body.init("", variables.scope).run(copyArgMap)>
         <cfif url.explain></div></cfif>
         
         <cfreturn resp>

@@ -21,12 +21,15 @@
 		<cfargument name="inputData" type="any" hint="either a string (which will get parsed) or a List object">
         <cfargument name="scope" type="any">
 		
+        <cfset variables.scope = arguments.scope>
+
         <cfif url.explain>
             <strong>List</strong>.init()<br>
             <cfdump var="#inputData#" label="inputData (list/init)"><br>
         </cfif>
 
 		<cfif isSimpleValue(arguments.inputData)>
+            <cfset hashId = Hash(arguments.inputData)>
 		<cfelse>
 			<cftry>
 				<cfif arguments.inputData.getType() IS "List">
@@ -40,10 +43,14 @@
 		</cfif>
         
         <cfset var contentLength = Len(inputData)>
-        
-		<!---
-        <cfset parse(contents)>
-		--->
+        <!--- if the function is already parsed (and saved) then use it --->
+        <cfif StructKeyExists(scope, request.currentNS)>
+            <cfif StructKeyExists(scope[request.currentNS], hashId)>
+                <cfreturn scope[request.currentNS][hashId]>
+            </cfif>
+        <cfelse>
+            <cfset scope[request.currentNS] = StructNew()>
+        </cfif>
         
         <!--- send the incoming string through the incremental parser to create the object list --->
         <cfset inputData &= " ">
@@ -63,6 +70,8 @@
         <cfset variables.datanew = variables.parseSymbols[1][1]>
 		--->
 		
+        <cfset scope[request.currentNS][hashId] = this>
+        
         <cfset this.data = inputData>
         
         <cfreturn this>
@@ -72,7 +81,6 @@
     arguments. Otherwise, we return it as a list. --->
 	<cffunction name="run">
         <cfargument name="bindMap" type="struct" required="true">
-        <cfargument name="context" required="true" default="#this#">
         
 		<cfset var firstToken = "">
         <cfset var fn = "">
@@ -89,60 +97,51 @@
         </cfif>
         
         <!--- attempt to instantiate an object of type first param --->
-        <cfif fnName IS NOT "." AND  fnName IS NOT "core">
-            <cftry>
-                <cfset fn = createObject("component", fnName)>
-                <cfif url.debug>Creating instance of <cfoutput>#fnName#</cfoutput><br></cfif>
-                <cfcatch>
-                    <cfif url.debug><cfoutput>--- LIST: #fnName# is not a CFC/function object<br></cfoutput></cfif>
-                    <cfif Left(cfcatch.message, 39) IS NOT "Could not find the ColdFusion component"
-						AND Left(cfcatch.message, 40) IS NOT "invalid component definition, can't find">
-							<cfdump var="#cfcatch.message#"><cfrethrow></cfif>
-                </cfcatch>
-            </cftry>
+        <cfif fnName IS NOT "." AND fnName IS NOT "core">
         </cfif>
         
         <!--- if we obtained a function or object, then we init() it, and return the new function object --->
         <cfif isObject(fn)>
             <cfif url.debug><cfoutput><p>--- LIST: #fnName# is an object, calling init <strong>#rest().toString()#</strong> ---</p></cfoutput></cfif>
-            <cfset resp = fn.init(rest(), context).run(arguments.bindMap)>
             
         <!--- if the function is a UserFunc object, then call it here --->
-        <cfelseif StructKeyExists(context, fnName) AND isObject(context[fnName])>
+        <cfelseif StructKeyExists(variables, "scope") AND StructKeyExists(variables.scope[request.currentNS], fnName)><!---  AND isObject(variables.scope[request.currentNS][fnName])> --->
             <cfif url.debug><cfoutput><p>--- LIST: creating custom function as UserFunc Object <strong>#fnName#</strong> ---</p></cfoutput></cfif>
-            <cfset fn = Duplicate(context[fnName])>
-            <cfset resp = fn.init(rest(), context).run(arguments.bindMap)>
+            <cfset fnold = variables.scope[request.currentNS][fnName]>
+            <cfset fn = Duplicate(variables.scope[request.currentNS][fnName])>
         
         <!--- if we are calling native CF functions --->
         <cfelseif isSimpleValue(fnName) AND fnName IS ".">
             <cfif url.debug><cfoutput><p>--- LIST: calling native <strong>CF</strong> function ---</p></cfoutput></cfif>
             <cfset fn = CreateObject("component", "CF")>
-            <cfset resp = fn.init(rest(), context).run(arguments.bindMap)>
             
         <!--- if we are calling native CF functions --->
         <cfelseif isSimpleValue(fnName) AND fnName IS "core">
             <cfif url.debug><cfoutput><p>--- LIST: calling <strong>CORE</strong> function ---</p></cfoutput></cfif>
             <cfset fn = CreateObject("component", "fcfcore")>
-            <cfset resp = fn.init(rest(), context).run(arguments.bindMap)>
             
         <cfelse>
-            <cfdump var="#context#" label="context (list/run)" expand="false">
-            <cfdump var="#fn#" label="LIST: fn">
-            <cfthrow message="function #fnName# cannot be found">
-            <cfset resp = print()>
-            <cfabort>
+            <cftry>
+                <cftry>
+                    <cfset fn = createObject("component", fnName)>
+                    <cfif url.debug>Attempting to create an instance of <cfoutput>#fnName#</cfoutput><br></cfif>
+                    <cfcatch>
+                        <cfif url.debug><cfoutput>--- LIST: #fnName# is not a CFC/function object<br></cfoutput></cfif>
+                        <cfif Left(cfcatch.message, 39) IS NOT "Could not find the ColdFusion component"
+                                AND Left(cfcatch.message, 40) IS NOT "invalid component definition, can't find">
+                            <cfdump var="#cfcatch.message#"><cfrethrow></cfif>
+                    </cfcatch>
+                </cftry>
+                <cfcatch>
+                    <cfdump var="#variables.scope#" label="variables.scope (list/run)" expand="false">
+                    <cfdump var="#fn#" label="LIST: fn">
+                    <cfthrow message="function #fnName# cannot be found">
+                </cfcatch>
+            </cftry>
             
         </cfif>
         
-		<!--- <cfif structKeyExists(arguments, "arg1")>
-			<cfset hashcode = hash(arguments["arg1"].tostring())>
-		</cfif>
-		<!--- try and locate the key and return the value --->
-		<cfif structKeyExists(variables.data, hashcode)>
-			<cfreturn variables.data[hashcode].data>
-		<cfelse>
-			<cfreturn "nil">
-		</cfif> --->
+        <cfset resp = fn.init(rest(), variables.scope).run(arguments.bindMap)>
         
         <cfreturn resp>
 	</cffunction>

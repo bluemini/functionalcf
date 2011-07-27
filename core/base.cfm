@@ -1,5 +1,10 @@
+<cfset time = GetTickCount()>
 <cfset this.name = "funcex">
 <cfset this.sessionManagement = true>
+
+<cfif NOT StructKeyExists(this, "cfn")><cfset this.cfn = StructNew()></cfif>
+<cfset cfnScope = this.cfn>
+<cfset request.currentNS = "core">
 
 <cfparam name="url.debug" default="false">
 <cfparam name="url.explain" default="#url.debug#">
@@ -19,10 +24,10 @@
     
         <!--- Since FunctionCF is drawing on the Lisp idea, where even the program code is a list,
         we need to create a list from the body text --->
-        <cfset baseList = CreateObject("component", "List").init(arguments[1])>
+        <cfset baseList = CreateObject("component", "List").init(arguments[1], cfnScope)>
         
         <!--- run the list, which will perform the primary top level function --->
-        <cfset out = baseList.run(StructNew(), variables)>
+        <cfset out = baseList.run(StructNew())>
         
         <cfif url.debug>
             <cfdump var="#out#" label="out (base)">
@@ -38,7 +43,9 @@
                     <cfcatch><cfrethrow></cfcatch>
                 </cftry>
             <cfelseif (Len(md.name) GTE 5 AND Right(md.name, 5) IS ".list")
-                    OR (Len(md.name) GTE 4 AND Right(md.name, 4) IS ".map")>
+                    OR (Len(md.name) GTE 4 AND Right(md.name, 4) IS ".map")
+                    OR (Len(md.name) GTE 7 AND Right(md.name, 7) IS ".vector")
+                    OR (Len(md.name) GTE 4 AND Right(md.name, 4) IS ".set")>
                 <cftry>
                     <cfset variables[out.name] = out>
                     <cfoutput>>c #out.toString()#<br></cfoutput>
@@ -84,26 +91,9 @@
 	</cfif>
 </cffunction>
 
-<cffunction name="onRequest" returntype="void">
+<!--- <cffunction name="onRequest" returntype="void">
 	<cfargument name="targetpage" type="any" required="true">
 	<cfinclude template="#arguments.targetpage#">
-</cffunction>
+</cffunction> --->
 
-
-<cfsilent><cfscript>
-// define first
-$("defn first [coll] (core first coll)");
-
-// define ffirst
-$("defn ffirst [coll] ( first ( first coll))");
-
-// define fffirst
-$("defn fffirst [coll] ( first ( first (first coll)))");
-
-// define pr
-$("defn pr [string & more] (core out string & more)");
-
-// define sub/sum
-$("defn sub [value-1 value-2 & more] (core sub value-1 value-2 & more)");
-$("defn sum [value-1 value-2 & more] (core sum value-1 value-2 & more)");
-</cfscript></cfsilent>
+<cfoutput>Base.cfm run in #GetTickCount()-Time#ms<br></cfoutput>

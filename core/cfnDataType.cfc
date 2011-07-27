@@ -4,7 +4,7 @@
     <cfset variables.lastChar = "">
 
     <!--- takes a char at a time and fills its internal array --->
-    <cffunction name="parseInc" output="true">
+    <cffunction name="parseInc" output="false">
         <cfargument name="char">
         
         <cfset var finished = "">

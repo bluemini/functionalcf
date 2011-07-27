@@ -32,7 +32,7 @@
          --->
         <cfset var f = this[variables.f]>
 		
-        <cfif url.explain OR url.debug>
+        <cfif url.explain>
 			<cfoutput>Running fcfcore, function: '#variables.f#', arguments: #variables.inputData.rest().toString()#</cfoutput>
 			<cfdump var="#variables.inputData.rest()#">
 		</cfif>
@@ -221,6 +221,17 @@
         </cfloop>
         
         <cfreturn resp>
+    </cffunction>
+
+    <cffunction name="time">
+        <cfargument name="bindMap">
+        <cfargument name="args">
+    
+        <cfset var time = GetTickCount()>
+        <cfset args.first().run(bindMap, variables.scope)>
+        <cfset time = GetTickCount() - time>
+        
+        <cfreturn time>
     </cffunction>
 
 </cfcomponent>

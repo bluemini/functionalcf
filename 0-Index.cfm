@@ -8,7 +8,7 @@
 <body>
 
 <h3>Calling $("str 'hello' 'bob'")</h3>
-<cfset $("str ""hello "" ""bob""")>
+<cfset $('str "hello " "bob"')>
 
 <h3>Calling $("defn myhellofunc [name] (str 'Id like to say hi to...' name))</h3>
 <cfset $("defn myhellofunc [name] (str ""Id like to say hi to..."" name)")>

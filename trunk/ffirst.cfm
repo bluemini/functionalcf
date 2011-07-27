@@ -1,25 +1,25 @@
-<p>$("def aseq [[1 2] [3 4] [5 6]]")</p>
+<h3>$("def aseq [[1 2] [3 4] [5 6]]")</h3>
 <cfset $("def aseq [[1 2] [3 4] [5 6] [7 8]]")>
 
 
-<h3>Define ffirst</h3>
+<h2>Define ffirst</h2>
 
-<p>$("defn ffirst [coll] (first (first coll))")</p>
+<h3>$("defn ffirst [coll] (first (first coll))")</h3>
 <cfset $("defn ffirst [coll] (first (core first coll))")>
 
-<p>$("def colle (first aseq)")</p>
+<h3>$("def colle (first aseq)")</h3>
 <cfset $("def colle (first aseq)")>
 
 <cfoutput>#colle.toString()# #colle.getType()#</cfoutput>
 
-<p>$("core first colle")</p>
+<h3>$("core first colle")</h3>
 <cfset $("core first colle")>
 
-<p>$("first colle")</p>
+<h3>$("first colle")</h3>
 <cfset $("first colle")>
 
 <cfabort>
-<p>$("ffirst aseq")</p>
+<h3>$("ffirst aseq")</h3>
 <cfset $("ffirst aseq")>
 
 
@@ -27,16 +27,16 @@
 
 <!---
 
-<p>$("defn ffirst [coll] (first (first coll))")</p>
+<h3>$("defn ffirst [coll] (first (first coll))")</h3>
 <cfset $("defn ffirst [coll] (core first (core first coll))")>
 
-<p>$("def aseq [1 2 3 4 5]")</p>
+<h3>$("def aseq [1 2 3 4 5]")</h3>
 <cfset $("def aseq [1 2 3 4 5]")>
 --->
 
-<p>$("defn ffirst [coll] (core first (core first coll))")</p>
+<h3>$("defn ffirst [coll] (core first (core first coll))")</h3>
 <cfset $("defn ffirst [coll] (core first (core first coll))")>
 
-<p>$("ffirst aseq")</p>
+<h3>$("ffirst aseq")</h3>
 <cfset $("ffirst aseq")>
 

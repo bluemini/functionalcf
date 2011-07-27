@@ -30,7 +30,7 @@
         <cfargument name="bindMap" type="struct" required="true">
         
         <!--- get the response from running the first argument --->
-        <cfset var check = variables.expression.run(arguments.bindMap, variables.scope)>
+        <cfset var check = variables.expression.init("", variables.scope).run(arguments.bindMap)>
         
         <cfif url.debug>
             <strong>IF</strong>.run()<br>
@@ -38,10 +38,10 @@
         </cfif>
         
         <cfif check>
-            <cfreturn variables.args.first().run(arguments.bindMap, variables.scope)>
+            <cfreturn variables.args.first().init("", variables.scope).run(arguments.bindMap)>
         <cfelse>
             <cfif variables.args.length() GTE 2>
-                <cfreturn variables.args.rest().first().run(arguments.bindMap, variables.scope)>
+                <cfreturn variables.args.rest().first().init("", variables.scope).run(arguments.bindMap)>
             <cfelse>
                 <cfreturn false>
             </cfif>

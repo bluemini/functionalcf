@@ -14,9 +14,6 @@
         <cfreturn this>
     </cffunction>
     
-    <cffunction name="evaluateTree">
-    </cffunction>
-    
     <cffunction name="run">
         <cfargument name="bindMap" type="struct" required="true">
         <!--- get the response from running the first argument --->
@@ -37,6 +34,7 @@
                 <cfelseif StructKeyExists(arguments.bindMap, mainArg) AND isNumeric(arguments.bindMap[mainArg])>
                     <cfset mainArg = arguments.bindMap[mainArg]>
                 <cfelse>
+                    <cfdump var="#bindMap#">
                     <cfthrow message="arguments to LT must be numeric entities or a binding that maps to one.">
                 </cfif>
             <cfelse>

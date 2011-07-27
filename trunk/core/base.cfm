@@ -2,8 +2,8 @@
 <cfset this.name = "funcex">
 <cfset this.sessionManagement = true>
 
-<cfif NOT StructKeyExists(this, "cfn")><cfset this.cfn = StructNew()></cfif>
-<cfset cfnScope = this.cfn>
+<cfif NOT StructKeyExists(application, "cfn")><cfset application.cfn = StructNew()></cfif>
+<cfset cfnScope = application.cfn>
 <cfset request.currentNS = "core">
 
 <cfparam name="url.debug" default="false">

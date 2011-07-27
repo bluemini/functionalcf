@@ -43,13 +43,13 @@
 	<cffunction name="first">
 		<cfargument name="bindMap">
 		<cfargument name="args">
-
+        
         <!--- fetch the first item from the args and resolve any local bindings --->
 		<cfset var arg = args.first()>
         
         <cfif url.explain or url.debug>
-            <p>Arguments passed to fcfcore.first <cfoutput>#args.toString()#</cfoutput></p>
-            <p>, the first item is the argument collection. <cfoutput>#arg.toString()#</cfoutput></p>
+            Arguments passed to fcfcore.first <cfoutput>#args.toString()#</cfoutput><br>
+            , the first item is the argument collection. <cfoutput>#arg.toString()#</cfoutput><br>
         </cfif>
         
         <!--- if the arg is a token we need to check if it's numeric or can be resolved to a local binding --->
@@ -57,7 +57,7 @@
             <cfset arg = arg.data>
             
             <cfif url.explain>
-                <cfoutput><p>arg is a token (#arg#)</cfoutput>
+                <cfoutput><p>arg is a token <strong>#arg#</strong><br></cfoutput>
             </cfif>
             <cfif isNumeric(arg)>
                 <cfif url.explain>
@@ -84,7 +84,7 @@
         </cfif>
         
         <!--- if the binding resolved to var/symbol, we must resolve that too --->
-        <cftry><cfset arg.getType()><cfcatch><cfdump var="#arg#"><cfabort></cfcatch></cftry>
+        
         <cfif arg.getType() IS "token">
             <cfif StructKeyExists(variables.scope, arg.data)>
                 <cfset arg = variables.scope[arg.data]>
@@ -210,8 +210,6 @@
                     <cfset boundValue = bindMap[arg]>
                     <cfif isSimpleValue(boundValue) AND isNumeric(boundValue)>
                         <cfset resp += boundValue>
-                    <cfelse>
-                        <cfthrow message="rest isn't a token">
                     </cfif>
                     <cfcatch></cfcatch>
                 </cftry>
@@ -228,7 +226,7 @@
         <cfargument name="args">
     
         <cfset var time = GetTickCount()>
-        <cfset args.first().run(bindMap, variables.scope)>
+        <cfset args.first().init("", variables.scope).run(bindMap)>
         <cfset time = GetTickCount() - time>
         
         <cfreturn time>

@@ -4,6 +4,10 @@
     <cfset variables.dataFinalized = false>
 
     <cffunction name="init">
+        <cfreturn this>
+    </cffunction>
+    
+    <cffunction name="xinit">
         <cfargument name="val" type="string">
         <cfset variables.val = arguments.val>
         <cfreturn this>

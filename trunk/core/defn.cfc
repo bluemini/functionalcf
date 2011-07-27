@@ -44,6 +44,7 @@
             <cfthrow message="Unable to define a function. DEFN must be called with three args; name, arguments and body">
         </cfif>
         
+        <!--- def based forms save their content to the current namespace CurrentNS --->
         <cfset variables.scope[request.currentNS][functionName] = func>
         
         <cfreturn func>

@@ -1,5 +1,5 @@
-<!--- test the if form --->
-<cfset $("if false (pr 'hello') (pr 'it was false ::')")>
+<!--- test the if form
+<cfset $('if false (pr "hello") (pr "it was false ::")')> --->
 
 <!---
 <p>Next 2 results should be: 4 and 16</p>
@@ -26,7 +26,7 @@
 <cfset $("defn fib [num] (if (LT num 2) 1 (sum (fib (sub num 2)) (fib (sub num 1))))")>
 
 <h3>$("fib 4")</h3>
-<cfset $("core time (fib 4)")>
+<cfset $("fib 4")>
 
 <h3>timing $("fib 6")</h3>
 <cfset $("core time (fib 6)")>

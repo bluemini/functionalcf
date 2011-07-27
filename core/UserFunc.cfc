@@ -122,7 +122,7 @@
         <cfreturn resp>
     </cffunction>
 
-    <cffunction name="evalBoundValue" access="private" output="false">
+    <cffunction name="evalBoundValue" access="private" output="true">
         <cfargument name="data">
         <cfargument name="dataFirst">
         <cfargument name="bindMap">
@@ -132,19 +132,9 @@
         <cfset var n = "">
         
         <!--- if the dataFirst symbol is not a FCF object, throw an error --->
-        <cftry>
-            <cfset n = dataFirst.getType()>
-            <cfcatch>
-                <!--- 
-                Not enough terms passed in to satisfy the arguments defined.<br>
-                <cfoutput>FunctionDetail.ARGS: #variables.functionDetail.args.toString()# /#variables.functionDetail.args.getType()#<br></cfoutput>
-                <cfoutput>FunctionDetail.BODY: #variables.functionDetail.body.toString()# /#variables.functionDetail.body.getType()#<br></cfoutput>
-                <cfdump var="#data.toString()#">
-                <cfdump var="#dataFirst#">
-                --->
-                <cfreturn "">
-            </cfcatch>
-        </cftry>
+        <cfif NOT isObject(dataFirst) OR NOT StructKeyExists(dataFirst, "getType")>
+            <cfreturn n>
+        </cfif>
         
         <cfif dataFirst.getType() IS "list">
             <cfif url.explain>
@@ -152,22 +142,29 @@
                 <div style="border-width:5px 1px 1px; border-style: solid; border-color: green; padding: 5px; margin: 5px 0"></cfoutput>
             </cfif>
             <!--- the use of an intermediary variable seemed to be necessary for Railo to store the correct value --->
-            <cfset resp = dataFirst.run(bindMap, variables.scope)>
+            <cfset resp = dataFirst.init("", variables.scope).run(bindMap)>
             <cfif url.explain>
                 <cfoutput></div>returned #resp.toString()#</cfoutput><br>
             </cfif>
             <cfset boundValue = resp>
+            
         <cfelseif StructKeyExists(variables.scope, dataFirst.toString())>
+            <cfif url.explain>binding: <strong>scope</strong> contains a references to #dataFirst.toString()#</cfif>
             <cfset boundValue = variables.scope[data.first().toString()]>
+            
         <cfelseif StructKeyExists(bindMap, dataFirst.toString())>
+            <cfif url.explain>binding: <strong>bindMap</strong> contains a references to #dataFirst.toString()#</cfif>
             <cfset boundValue = bindMap[data.first().toString()]>
+            
         <cfelseif data.first().getType() IS "String">
+            <cfif url.explain>binding: dataFirst is a <strong>string</strong> #dataFirst.toString()#</cfif>
             <cfset boundValue = dataFirst.toString()>
+            
         <cfelse>
-            DANG! trying to resolve <cfoutput>#dataFirst.toString()# without success<br></cfoutput>
             <!--- <cfdump var="#bindMap#">
             <cfdump var="#variables.scope#">
             <cfthrow> --->
+            <cfif url.explain>binding: datafirst is a literal, #dataFirst.toString()#</cfif>
             <cfset boundValue = dataFirst.toString()>
         </cfif>
         

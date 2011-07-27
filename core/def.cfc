@@ -33,6 +33,9 @@
             <cfthrow message="Unable to define a function. DEF must be called with two args; name and data">
         </cfif>
         
+        <!--- def based forms save their content to the current namespace CurrentNS --->
+        <cfset variables.scope[request.currentNS][structure.name] = structure>
+        
         <cfreturn structure>
     </cffunction>
     

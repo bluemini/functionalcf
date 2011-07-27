@@ -1,3 +1,6 @@
+<html>
+<head>
+<title>CFn - A functional language on CF</title>
 <style>
 body {
 	font-size: 0.85em;
@@ -28,3 +31,5 @@ p {
 	margin: 6px 0;
 }
 </style>
+</head>
+<body>

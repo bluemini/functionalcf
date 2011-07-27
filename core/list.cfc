@@ -33,7 +33,6 @@
 		<cfelse>
 			<cftry>
 				<cfif arguments.inputData.getType() IS "List">
-					<cfdump var="#arguments.inputData._getData()#" label="arguments inputData data (list/init)">
 					<cfreturn setData(arguments.inputData._getData())>
 				<cfelse>
 					Not a list...<cfabort>
@@ -43,14 +42,6 @@
 		</cfif>
         
         <cfset var contentLength = Len(inputData)>
-        <!--- if the function is already parsed (and saved) then use it --->
-        <cfif StructKeyExists(scope, request.currentNS)>
-            <cfif StructKeyExists(scope[request.currentNS], hashId)>
-                <cfreturn scope[request.currentNS][hashId]>
-            </cfif>
-        <cfelse>
-            <cfset scope[request.currentNS] = StructNew()>
-        </cfif>
         
         <!--- send the incoming string through the incremental parser to create the object list --->
         <cfset inputData &= " ">
@@ -70,7 +61,7 @@
         <cfset variables.datanew = variables.parseSymbols[1][1]>
 		--->
 		
-        <cfset scope[request.currentNS][hashId] = this>
+        <!--- <cfset scope[request.currentNS][hashId] = this> --->
         
         <cfset this.data = inputData>
         
@@ -89,7 +80,7 @@
             <strong>List</strong>.run()<br>
             <cfdump var="#bindMap#" label="bindMap (List/run)" expand="false">
         </cfif>
-
+        
         <cfif first().getType() IS "Token">
             <cfset fnName = first().data>
         <cfelse>

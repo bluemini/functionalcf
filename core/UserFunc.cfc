@@ -148,9 +148,9 @@
             </cfif>
             <cfset boundValue = resp>
             
-        <cfelseif StructKeyExists(variables.scope, dataFirst.toString())>
+        <cfelseif StructKeyExists(variables.scope[request.currentNS], dataFirst.toString())>
             <cfif url.explain>binding: <strong>scope</strong> contains a references to #dataFirst.toString()#</cfif>
-            <cfset boundValue = variables.scope[data.first().toString()]>
+            <cfset boundValue = variables.scope[request.currentNS][data.first().toString()]>
             
         <cfelseif StructKeyExists(bindMap, dataFirst.toString())>
             <cfif url.explain>binding: <strong>bindMap</strong> contains a references to #dataFirst.toString()#</cfif>

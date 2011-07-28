@@ -24,6 +24,7 @@
 		<a href="./#sortedfiles.name[1]#" style="float: right">start</a>
 	</cfif> --->
     <cfif StructKeyExists(request, "time")>Main page run in #request.time#ms</cfif>
+    <cfif StructKeyExists(request, "timings")><cfdump var="#request.timings#"></cfif>
 	<div style="clear:both"></div>
 </div></cfoutput>
 </body>

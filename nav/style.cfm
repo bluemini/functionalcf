@@ -33,3 +33,6 @@ p {
 </style>
 </head>
 <body>
+<div>
+    <img src="image.png" alt="CFn logo">
+</div>

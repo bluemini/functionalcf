@@ -5,11 +5,14 @@
 <cfif NOT StructKeyExists(application, "cfn")><cfset application.cfn = StructNew()></cfif>
 <cfset cfnScope = application.cfn>
 <cfset request.currentNS = "core">
+<cfset request.timings = ArrayNew(1)>
 
 <cfparam name="url.debug" default="false">
 <cfparam name="url.explain" default="#url.debug#">
 
 <cffunction name="$" access="public" output="true">
+    
+    <cfset timeStart = GetTickCount()>
     
     <cfif url.debug>
 		<h3>$:</h3>
@@ -89,6 +92,10 @@
 		<cfdump var="#structKeyArray(arguments)#">
 		--- end $ arguments ---<br></cfif> --->
 	</cfif>
+    
+    <cfset timeEnd = GetTickCount()>
+    <cfset ArrayAppend(request.timings, {"function"=#arguments[1]#, "time"=(timeEnd - timeStart)})>
+    
 </cffunction>
 
 <!--- <cffunction name="onRequest" returntype="void">

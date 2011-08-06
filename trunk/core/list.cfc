@@ -22,6 +22,7 @@
         <cfargument name="scope" type="any">
 		
         <cfset variables.scope = arguments.scope>
+        <cfset variables.baseString = arguments.inputData>
 
         <cfif url.explain>
             <strong>List</strong>.init()<br>
@@ -132,7 +133,15 @@
             
         </cfif>
         
-        <cfset resp = fn.init(rest(), variables.scope).run(arguments.bindMap)>
+        <cftry>
+            <cfset resp = fn.init(rest(), variables.scope).run(arguments.bindMap)>
+            <cfcatch>
+                <cfdump var="#fn#"><br>
+                Attempting to run: <cfoutput>#variables.baseString#</cfoutput><br>
+                <cfset resp = "Error: "&cfcatch.message>
+                <cfdump var="#application.cfn#">
+            </cfcatch>
+        </cftry>
         
         <cfreturn resp>
 	</cffunction>

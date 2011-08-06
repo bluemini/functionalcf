@@ -6,9 +6,10 @@ body {
 	font-size: 0.85em;
     padding: 5px !important;
 }
-h1,h2,h3,h4,h5,h6,p,body {
+h1,h2,h3,h4,h5,h6,p,body,img {
 	margin: 0;
 	padding: 0;
+    border: 0;
 	font-family: verdana;
 }
 code {
@@ -34,5 +35,5 @@ p {
 </head>
 <body>
 <div>
-    <img src="image.png" alt="CFn logo">
+    <a href="./index.cfm"><img src="image.png" alt="CFn logo"></a>
 </div>

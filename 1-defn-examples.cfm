@@ -19,5 +19,3 @@
 <cfset $("defn hello [] (pr 'Hello World')")>
 <cfset $("hello")>
 
-<!--- 	<cfset $(greeting, "world")>
---->

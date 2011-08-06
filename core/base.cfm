@@ -7,6 +7,8 @@
 <cfset request.currentNS = "core">
 <cfset request.timings = ArrayNew(1)>
 
+<cfif NOT StructKeyExists(application.cfn, request.currentNS)><cfset application.cfn[request.currentNS] = StructNew()></cfif>
+
 <cfparam name="url.debug" default="false">
 <cfparam name="url.explain" default="#url.debug#">
 

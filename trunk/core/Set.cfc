@@ -14,6 +14,7 @@
     
     <!--- define the closing char for this data type --->
     <cfset variables.closingChar = "}">
+    <cfset ArrayAppend(request.feature, {"type"="set", "time"="#getTickCount()#"})>
     
 	<cffunction name="init">
 		<cfargument name="contents" type="any">

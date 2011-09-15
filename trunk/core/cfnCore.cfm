@@ -19,6 +19,7 @@
     // define sub/sum
     $("defn sub [value-1 value-2 & more] (core sub value-1 value-2 & more)");
     $("defn sum [value-1 value-2 & more] (core sum value-1 value-2 & more)");
+    
     </cfscript>
     <cfoutput>cfnCore run in #GetTickCount()-Time#ms<br></cfoutput>
 </cfif>

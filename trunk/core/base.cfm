@@ -3,6 +3,8 @@
 <cfset this.sessionManagement = true>
 
 <cfif NOT StructKeyExists(application, "cfn")><cfset application.cfn = StructNew()></cfif>
+<cfif NOT StructKeyExists(application.cfn, "fnCache")><cfset application.cfn.fnCache = StructNew()></cfif>
+
 <cfset cfnScope = application.cfn>
 <cfset request.currentNS = "core">
 <cfset request.timings = ArrayNew(1)>
@@ -10,11 +12,14 @@
 <cfif NOT StructKeyExists(application.cfn, request.currentNS)><cfset application.cfn[request.currentNS] = StructNew()></cfif>
 
 <cfparam name="url.debug" default="false">
+<cfif NOT IsBoolean(url.debug)><cfset url.debug = true></cfif>
 <cfparam name="url.explain" default="#url.debug#">
+<cfif NOT IsBoolean(url.explain)><cfset url.explain = true></cfif>
 
 <cffunction name="$" access="public" output="true">
     
     <cfset timeStart = GetTickCount()>
+    <cfset request.feature = []>
     
     <cfif url.debug>
 		<h3>$:</h3>
@@ -29,7 +34,13 @@
     
         <!--- Since FunctionCF is drawing on the Lisp idea, where even the program code is a list,
         we need to create a list from the body text --->
-        <cfset baseList = CreateObject("component", "List").init(arguments[1], cfnScope)>
+        <cfset fnHash = Hash(arguments[1])>
+        <cfif NOT StructKeyExists(application.cfn.fnCache, fnHash) OR StructKeyExists(url, "reparse")>
+            <cfset baseList = CreateObject("component", "List").init(arguments[1], cfnScope)>
+            <cfset application.cfn.fnCache[fnHash] = baseList>
+        <cfelse>
+            <cfset baseList = application.cfn.fnCache[fnHash]>
+        </cfif>
         
         <!--- run the list, which will perform the primary top level function --->
         <cfset out = baseList.run(StructNew())>
@@ -97,6 +108,7 @@
     
     <cfset timeEnd = GetTickCount()>
     <cfset ArrayAppend(request.timings, {"function"=#arguments[1]#, "time"=(timeEnd - timeStart)})>
+    <cfset ArrayAppend(request.timings, {"function"="feature", "time"=request.feature})>
     
 </cffunction>
 
@@ -104,5 +116,4 @@
 	<cfargument name="targetpage" type="any" required="true">
 	<cfinclude template="#arguments.targetpage#">
 </cffunction> --->
-
-<cfoutput>Base.cfm run in #GetTickCount()-Time#ms<br></cfoutput>
+<cfset ArrayAppend(request.timings, {"time"="#GetTickCount()-Time#", "function"="base.cfm"})>

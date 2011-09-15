@@ -2,7 +2,7 @@
     
     <cfset variables.dataCore = ArrayNew(1)>
     <cfset variables.lastChar = "">
-
+    
     <!--- takes a char at a time and fills its internal array --->
     <cffunction name="parseInc" output="false">
         <cfargument name="char">

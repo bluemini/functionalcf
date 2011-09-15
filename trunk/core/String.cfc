@@ -6,6 +6,7 @@
 
     <!--- define the closing char for this data type --->
     <cfset variables.closingChar = """">
+    <cfset ArrayAppend(request.feature, {"type"="string", "time"="#getTickCount()#"})>
     
     <cffunction name="init">
         <cfargument name="val" type="string">

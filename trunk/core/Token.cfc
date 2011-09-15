@@ -2,6 +2,8 @@
     
     <cfset variables.val = "">
     <cfset variables.dataFinalized = false>
+    
+    <cfset ArrayAppend(request.feature, {"type"="token", "time"="#getTickCount()#"})>
 
     <cffunction name="init">
         <cfreturn this>

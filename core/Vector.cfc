@@ -7,6 +7,7 @@
     
     <!--- define the closing char for this data type --->
     <cfset variables.closingChar = "]">
+    <cfset ArrayAppend(request.feature, {"type"="vector", "time"="#getTickCount()#"})>
         
 	<!--- creates a map object, it expects a CF struct --->
 	<cffunction name="init" returntype="any" output="true">

@@ -39,7 +39,7 @@
         <cfset var dataFirst = "">
         <cfset var condArgs = false>
         
-        <cfif url.debug OR url.explain>
+        <cfif url.explain>
             <strong>UserFunc</strong>.run()<br>
             <cfoutput>FunctionDetail.ARGS: #variables.functionDetail.args.toString()# /#variables.functionDetail.args.getType()#<br></cfoutput>
             <cfoutput>FunctionDetail.BODY: #variables.functionDetail.body.toString()# /#variables.functionDetail.body.getType()#<br></cfoutput>

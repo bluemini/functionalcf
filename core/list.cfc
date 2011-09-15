@@ -13,9 +13,11 @@
     <cfset variables.meta = StructNew()>
     <cfset variables.dataFinalized = false>
     <cfset variables.dataBuild = "">
+    <cfset variables.type = "list">
     
     <!--- define the closing char for this data type --->
     <cfset variables.closingChar = ")">
+    <cfset ArrayAppend(request.feature, {"type"="list", "time"="#getTickCount()#"})>
 
 	<cffunction name="init">
 		<cfargument name="inputData" type="any" hint="either a string (which will get parsed) or a List object">
@@ -26,7 +28,12 @@
 
         <cfif url.explain>
             <strong>List</strong>.init()<br>
-            <cfdump var="#inputData#" label="inputData (list/init)"><br>
+            <cfif IsSimpleValue(inputData) AND inputData IS "">
+                <!--- if the inputData is empty, what's happened --->
+                No input Data<br>
+            <cfelse>
+                <cfdump var="#inputData#" label="inputData (list/init)"><br>
+            </cfif>
         </cfif>
 
 		<cfif isSimpleValue(arguments.inputData)>
@@ -121,7 +128,10 @@
                         <cfif url.debug><cfoutput>--- LIST: #fnName# is not a CFC/function object<br></cfoutput></cfif>
                         <cfif Left(cfcatch.message, 39) IS NOT "Could not find the ColdFusion component"
                                 AND Left(cfcatch.message, 40) IS NOT "invalid component definition, can't find">
-                            <cfdump var="#cfcatch.message#"><cfrethrow></cfif>
+                            <cfdump var="#cfcatch.message#"><cfrethrow>
+                        <cfelse>
+                            
+                        </cfif>
                     </cfcatch>
                 </cftry>
                 <cfcatch>
@@ -136,10 +146,12 @@
         <cftry>
             <cfset resp = fn.init(rest(), variables.scope).run(arguments.bindMap)>
             <cfcatch>
-                <cfdump var="#fn#"><br>
+                <cfif url.explain>
+                    <cfdump var="#cfcatch#" label="error details" expand="false">
+                </cfif>
+                <cfdump var="#fn#" label="function being run (or attempted)">
                 Attempting to run: <cfoutput>#variables.baseString#</cfoutput><br>
                 <cfset resp = "Error: "&cfcatch.message>
-                <cfdump var="#application.cfn#">
             </cfcatch>
         </cftry>
         

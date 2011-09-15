@@ -24,7 +24,23 @@
 		<a href="./#sortedfiles.name[1]#" style="float: right">start</a>
 	</cfif> --->
     <cfif StructKeyExists(request, "time")>Main page run in #request.time#ms</cfif>
-    <cfif StructKeyExists(request, "timings")><cfdump var="#request.timings#"></cfif>
+    <cfif StructKeyExists(request, "timings") AND IsArray(request.timings)>
+        <table style="font-size: 0.9em">
+            <tr><td colspan="2"><strong>Timings</strong></td></tr>
+            <cfloop array="#request.timings#" index="event">
+            <cfoutput><tr>
+            <cfif IsSimpleValue(event.time)>
+                <td style="font-weight:bold;padding-right:20px">#event.time#ms</td>
+            <cfelse>
+                <td><cfset timingLast = event.time[1].time>
+                    <cfloop array="#event.time#" index="timing">
+                        #timing.type#: #timing.time-timingLast#<cfset timingLast = timing.time><br>
+                    </cfloop>
+                </td>
+            </cfif>
+            <td>#event.function#</td></tr></cfoutput>
+        </cfloop></table>
+    </cfif>
 	<div style="clear:both"></div>
 </div></cfoutput>
 </body>

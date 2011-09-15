@@ -100,6 +100,7 @@
         </cfif>
         
         <!--- if we obtained a function or object, then we init() it, and return the new function object --->
+        <cfset timeObjectStart = GetTickCount()>
         <cfif isObject(fn)>
             <cfif url.debug><cfoutput><p>--- LIST: #fnName# is an object, calling init <strong>#rest().toString()#</strong> ---</p></cfoutput></cfif>
             
@@ -142,6 +143,9 @@
             </cftry>
             
         </cfif>
+        <cfset timeObjectEnd = GetTickCount()>
+        <cfset ArrayAppend(request.timings, {"function"="get object reference","time"="#timeObjectEnd-timeObjectStart#"})>
+
         
         <cftry>
             <cfset resp = fn.init(rest(), variables.scope).run(arguments.bindMap)>
@@ -154,6 +158,9 @@
                 <cfset resp = "Error: "&cfcatch.message>
             </cfcatch>
         </cftry>
+        <cfset timeListRunEnd = GetTickCount()>
+        <cfset ArrayAppend(request.timings, {"function"="run the list..","time"="#timeListRunEnd-timeObjectEnd#"})>
+
         
         <cfreturn resp>
 	</cffunction>

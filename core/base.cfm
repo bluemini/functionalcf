@@ -42,8 +42,13 @@
             <cfset baseList = application.cfn.fnCache[fnHash]>
         </cfif>
         
+        <!--- log the time to parse the object --->
+        <cfset timeParse = GetTickCount()>
+        <cfset ArrayAppend(request.timings, {"function"="parsing: #ListGetAt(arguments[1], 1, " ")#","time"="#timeParse-timeStart#"})>
+        
         <!--- run the list, which will perform the primary top level function --->
         <cfset out = baseList.run(StructNew())>
+        <cfset ArrayAppend(request.timings, {"function"="run: #ListGetAt(arguments[1], 1, " ")#","time"="#GetTickCount()-timeParse#"})>
         
         <cfif url.debug>
             <cfdump var="#out#" label="out (base)">

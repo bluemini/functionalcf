@@ -1,7 +1,7 @@
 <!--- these functions define other functins, so we only need to run these once, to create the other functions --->
 <cfif (NOT StructKeyExists(application, "cfn") 
-            AND NOT StructKeyExists(application.cfn, "core")
-            AND NOT StructKeyExists(application.cfn.core, "first"))
+            OR NOT StructKeyExists(application.cfn, "core")
+            OR NOT StructKeyExists(application.cfn.core, "first"))
         OR StructKeyExists(url, "reset")>
     <cfset Time = GetTickCount()><cfscript>
     // define first
